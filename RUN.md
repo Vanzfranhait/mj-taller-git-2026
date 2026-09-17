@@ -1,3 +1,4 @@
+
 # RUN.md — Instrucciones de ejecución
 
 ## Requisitos
@@ -29,3 +30,10 @@ src/main/java/py/edu/uc/lp3/
 ├── cs2/                      ← modelado Counter-Strike 2
 └── minecraft/                ← (opcional) modelado Minecraft
 ```
+
+## Contacto
+
+- **Autor:** Matías Jara
+- **Email:** matiazjara@gmail.com
+- **GitHub:** [@Vanzfranhait](https://github.com/Vanzfranhait)
+
