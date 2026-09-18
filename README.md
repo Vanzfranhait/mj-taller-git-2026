@@ -34,3 +34,105 @@ src/main/java/py/edu/uc/lp3/cs2/
 ```
 
 > 📌 El diagrama de clases y la documentación del modelo están en la **descripción del Pull Request**.
+## Diagrama de clases (modelado CS2)
+
+```mermaid
+classDiagram
+    class Arma {
+        <<abstract>>
+        -String nombre
+        -int daño
+        -int precio
+        -int municionMax
+        -int municionActual
+        -float precision
+        -String equipo
+        +disparar() int
+        +recargar() void
+        +puedeDisparar() boolean
+        +describir()* String
+        +getTipo()* String
+    }
+
+    class ArmaCorta {
+        -int cadencia
+        -long cooldownMs
+        -String tipoMunicion
+        -boolean puedeRafaga
+        +dispararRapido() int
+        +apuntarPreciso() void
+        +describir() String
+        +getTipo() String
+    }
+
+    class Granada {
+        -String tipo
+        -int radioExplosion
+        -float tiempoActivacion
+        -boolean lanzada
+        +lanzar() void
+        +explotar() int
+        +describir() String
+        +getTipo() String
+    }
+
+    class ArmaLarga {
+        <<abstract>>
+        -int alcance
+        -long cooldownMs
+        -boolean modoRafaga
+        +cambiarModo() void
+        +dispararRafaga() int
+        +describir()* String
+        +getTipo()* String
+    }
+
+    class Francotirador {
+        -int zoom
+        -float estabilidad
+        +usarZoom(int) void
+        +aguantarRespiracion() void
+        +respirar() void
+        +describir() String
+        +getTipo() String
+    }
+
+    class RifleAsalto {
+        -int retroceso
+        -int retrocesoBase
+        -float precisionRafaga
+        +controlarRetroceso() void
+        +descansar() void
+        +describir() String
+        +getTipo() String
+    }
+
+    class Subfusil {
+        -float movilidad
+        -float movilidadBase
+        -float dispersionMovimiento
+        +dispararCorriendo() int
+        +aumentarMovilidad() void
+        +describir() String
+        +getTipo() String
+    }
+
+    class Escopeta {
+        -int numeroBalas
+        -float dispersionBalas
+        -int alcanceEfectivo
+        +dispararRafagaCorta() int
+        +calcularDañoTotal() int
+        +describir() String
+        +getTipo() String
+    }
+
+    Arma <|-- ArmaCorta
+    Arma <|-- Granada
+    Arma <|-- ArmaLarga
+
+    ArmaLarga <|-- Francotirador
+    ArmaLarga <|-- RifleAsalto
+    ArmaLarga <|-- Subfusil
+    ArmaLarga <|-- Escopeta
+```
