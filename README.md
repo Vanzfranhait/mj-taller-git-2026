@@ -23,7 +23,7 @@ Para detenerla: `Ctrl + C`
 ## Documentación
 
 - `RUN.md` — Instrucciones detalladas de ejecución
-- `docs/TALLER_GIT.md` — Guía del taller (si la copiaste al repo)
+- `docs/TALLER_GIT.md` — Guía del taller 
 
 ## Modelado POO
 
