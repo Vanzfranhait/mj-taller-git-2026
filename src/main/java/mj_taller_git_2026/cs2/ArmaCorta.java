@@ -53,6 +53,10 @@ public class ArmaCorta extends Arma {
         this.tipoMunicion = tipoMunicion;
         this.puedeRafaga = puedeRafaga;
     }
+    // Constructor simplificado (NUEVO — sobrecarga)
+    public ArmaCorta(String nombre, int daño) {
+        this(nombre, daño, 200, 12, 0.8f, "Ambos", 350, "9mm", false);
+    }
 
     /**
      * Dispara en modo rápido. Si el arma no puede ráfaga, lanza excepción.
