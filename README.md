@@ -136,3 +136,97 @@ classDiagram
     ArmaLarga <|-- Subfusil
     ArmaLarga <|-- Escopeta
 ```
+## Sobrecarga y sobreescritura
+
+### Sobrecarga (overloading)
+
+La **sobrecarga** ocurre cuando varios métodos tienen el **mismo nombre** pero **distinta lista de argumentos** (distinta firma). En el dominio CS2 se aplica así:
+
+#### Sobrecarga de constructores
+
+**En `Arma`** (clase base):
+
+```java
+// Constructor completo
+protected Arma(String nombre, int daño, int precio, int municionMax,
+               float precision, String equipo)
+
+// Constructor simplificado (sobrecarga)
+protected Arma(String nombre, int daño)
+```
+
+El constructor simplificado llama al completo con `this(...)` y valores por defecto.
+
+**En `ArmaCorta`** (clase hija):
+
+```java
+// Constructor completo
+public ArmaCorta(String nombre, int daño, int precio, int municionMax,
+                 float precision, String equipo,
+                 int cadencia, String tipoMunicion, boolean puedeRafaga)
+
+// Constructor simplificado (sobrecarga)
+public ArmaCorta(String nombre, int daño)
+```
+
+Ambos constructores dejan el objeto en un **estado válido**. Ninguno rompe los invariantes.
+
+#### Sobrecarga de un mensaje del dominio
+
+**En `Arma`**:
+
+```java
+// Dispara 1 tiro
+public int disparar()
+
+// Dispara N tiros (sobrecarga)
+public int disparar(int cantidad)
+```
+
+Mismo nombre (`disparar`), distinta firma. El segundo reutiliza al primero.
+
+---
+
+### Sobreescritura (overriding)
+
+La **sobreescritura** ocurre cuando una **clase hija redefine un método del padre** con la **misma firma**. En el dominio CS2:
+
+| Método | Declarado en | Sobreescrito por |
+|--------|-------------|------------------|
+| `describir()` | `Arma` (abstracto) | `ArmaCorta`, `Granada`, `Francotirador`, `RifleAsalto`, `Subfusil`, `Escopeta` |
+| `getTipo()` | `Arma` (abstracto) | Las 8 hijas |
+| `disparar()` | `Arma` | `Escopeta` (calcula daño según perdigones) |
+| `dispararRafaga()` | `ArmaLarga` | `RifleAsalto` (aumenta retroceso) |
+
+**Ejemplo en código:**
+
+```java
+// En Arma (padre)
+public abstract String describir();
+
+// En Francotirador (hija) — sobreescribe
+@Override
+public String describir() {
+    return String.format("%s [%s] - Daño: %d | Zoom: x%d",
+        getNombre(), getTipo(), getDaño(), zoom);
+}
+```
+
+**Diferencia clave:**
+
+- **Sobrecarga:** mismo nombre, **distinta firma** (parámetros)
+- **Sobreescritura:** mismo nombre, **misma firma**, en clase hija
+
+---
+
+### ¿Por qué importa el diseño?
+
+El controller `VanzfranhaitController` trata todas las armas como tipo padre `Arma`:
+
+```java
+for (Arma arma : inventario.values()) {
+    respuesta.put(arma.getNombre(), arma.describir());
+}
+```
+
+**No hay `if (arma instanceof Francotirador)`.** Cada objeto responde su propio `describir()`. Eso es polimorfismo por sobreescritura.

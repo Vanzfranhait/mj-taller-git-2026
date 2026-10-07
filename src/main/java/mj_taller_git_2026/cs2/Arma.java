@@ -62,6 +62,10 @@ public abstract class Arma {
         this.precision = precision;
         this.equipo = equipo;
     }
+    // Constructor simplificado (NUEVO — sobrecarga)
+    protected Arma(String nombre, int daño) {
+        this(nombre, daño, 0, 1, 1.0f, "Ambos");
+    }
 
     // ------------------------------------------------------------------
     // Comportamientos comunes (mensajes que cambian el estado)
@@ -78,6 +82,15 @@ public abstract class Arma {
         municionActual--;
         return daño;
     }
+     // Método sobrecargado (N disparos) — NUEVO
+    public int disparar(int cantidad) {
+        int dañoTotal = 0;
+        for (int i = 0; i < cantidad && municionActual > 0; i++) {
+            dañoTotal += disparar();
+        }
+        return dañoTotal;
+    }
+
 
     /**
      * Recarga el arma al máximo. No hace nada si ya está llena.
