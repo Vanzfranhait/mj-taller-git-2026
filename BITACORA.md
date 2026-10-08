@@ -35,7 +35,7 @@ Durante el desarrollo del taller usé DeepSeek como asistente para:
 
 ### 5. Git
 
--”Que es un PR?”
+- "Que es un PR?"
 - "Cómo hago un PR en mi propio repositorio"
 - "Cómo resuelvo un push rechazado porque el remoto tiene commits que no tengo"
 - "Cómo hago merge después de un pull con historiales divergentes"
@@ -56,10 +56,8 @@ Usé la IA como **guía y asistente** para:
 
 ## Archivos asistidos
 
-- Clases del dominio: `src/main/java/mj_taller_git_2026/cs2/*.java`
-- Controllers: `src/main/java/mj_taller_git_2026/cs2/web/*.java`
-- Test unitario: `src/test/java/mj_taller_git_2026/cs2/VanzfranhaitTest.java`
+- Clases del dominio: `src/main/java/py/edu/uc/lp3/domain/*.java`
+- Controllers: `src/main/java/py/edu/uc/lp3/rest/controller/*.java`
+- Test unitario: `src/test/java/py/edu/uc/lp3/domain/VanzfranhaitTest.java`
 - README con diagrama Mermaid
 - Documento de entrega
-
-
