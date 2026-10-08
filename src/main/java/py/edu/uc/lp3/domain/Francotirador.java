@@ -48,9 +48,13 @@ public class Francotirador extends ArmaLarga {
 
     /**
      * Activa el zoom de la mira.
+     * Sobrescribe el mensaje por defecto de {@link Arma}, que rechaza
+     * la operación para cualquier arma que no sea francotirador.
      *
      * @param nivel nivel de zoom deseado (1 a 10)
+     * @throws IllegalArgumentException si el nivel está fuera de rango
      */
+    @Override
     public void usarZoom(int nivel) {
         if (nivel < 1 || nivel > 10) {
             throw new IllegalArgumentException("El zoom debe estar entre 1 y 10");

@@ -63,9 +63,12 @@ public class Granada extends Arma {
 
     /**
      * Lanza la granada. Solo se puede lanzar una vez.
+     * Sobrescribe el mensaje por defecto de {@link Arma}, que rechaza
+     * la operación para cualquier arma que no sea granada.
      *
      * @throws IllegalStateException si ya fue lanzada
      */
+    @Override
     public void lanzar() {
         if (lanzada) {
             throw new IllegalStateException("La granada ya fue lanzada");
@@ -76,10 +79,12 @@ public class Granada extends Arma {
 
     /**
      * Simula la explosión. Solo puede explotar si ya fue lanzada.
+     * Sobrescribe el mensaje por defecto de {@link Arma}.
      *
      * @return el daño infligido en el centro de la explosión
      * @throws IllegalStateException si la granada no fue lanzada
      */
+    @Override
     public int explotar() {
         if (!lanzada) {
             throw new IllegalStateException("No se puede explotar una granada que no fue lanzada");

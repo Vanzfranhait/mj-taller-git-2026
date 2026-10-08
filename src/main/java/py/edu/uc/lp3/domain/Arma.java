@@ -62,6 +62,7 @@ public abstract class Arma {
         this.precision = precision;
         this.equipo = equipo;
     }
+
     // Constructor simplificado (NUEVO — sobrecarga)
     protected Arma(String nombre, int daño) {
         this(nombre, daño, 0, 1, 1.0f, "Ambos");
@@ -82,7 +83,8 @@ public abstract class Arma {
         municionActual--;
         return daño;
     }
-     // Método sobrecargado (N disparos) — NUEVO
+
+    // Método sobrecargado (N disparos) — NUEVO
     public int disparar(int cantidad) {
         int dañoTotal = 0;
         for (int i = 0; i < cantidad && municionActual > 0; i++) {
@@ -90,7 +92,6 @@ public abstract class Arma {
         }
         return dañoTotal;
     }
-
 
     /**
      * Recarga el arma al máximo. No hace nada si ya está llena.
@@ -104,6 +105,44 @@ public abstract class Arma {
      */
     public boolean puedeDisparar() {
         return municionActual > 0;
+    }
+
+    // ------------------------------------------------------------------
+    // Mensajes opcionales: la clase base los declara "no soportados"
+    // por defecto; las subclases que sí pueden los sobrescriben.
+    // Esto evita instanceof en la capa de entrada (controller).
+    // ------------------------------------------------------------------
+
+    /**
+     * Lanza el arma. Solo las granadas lo soportan.
+     *
+     * @throws UnsupportedOperationException si el arma no se lanza
+     */
+    public void lanzar() {
+        throw new UnsupportedOperationException(
+            getNombre() + " no se puede lanzar: no es una granada.");
+    }
+
+    /**
+     * Explota el arma. Solo las granadas lo soportan.
+     *
+     * @return el daño infligido en el centro de la explosión
+     * @throws UnsupportedOperationException si el arma no explota
+     */
+    public int explotar() {
+        throw new UnsupportedOperationException(
+            getNombre() + " no puede explotar: no es una granada.");
+    }
+
+    /**
+     * Cambia el zoom. Solo los francotiradores lo soportan.
+     *
+     * @param nivel nivel de zoom deseado
+     * @throws UnsupportedOperationException si el arma no tiene zoom
+     */
+    public void usarZoom(int nivel) {
+        throw new UnsupportedOperationException(
+            getNombre() + " no tiene zoom: no es un francotirador.");
     }
 
     // ------------------------------------------------------------------

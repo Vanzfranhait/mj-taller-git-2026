@@ -24,10 +24,15 @@ import py.edu.uc.lp3.domain.Subfusil;
  * <p><b>Principio de diseño:</b> el controller NUNCA accede a campos
  * directamente ni usa setters. Solo habla con el dominio a través
  * de mensajes públicos ({@code disparar()}, {@code recargar()},
- * {@code describir()}, etc.).</p>
+ * {@code describir()}, {@code lanzar()}, {@code explotar()},
+ * {@code usarZoom()}).</p>
  *
- * <p>Si el objeto se pudiera invalidar desde HTTP, el diseño estaría
- * mal. Aquí todas las validaciones viven dentro del dominio.</p>
+ * <p><b>Polimorfismo:</b> el controller no verifica el tipo concreto de cada arma. Cada objeto
+ * responde a los mensajes comunes ({@code lanzar}, {@code explotar},
+ * {@code usarZoom}) con su propia implementación. Si el arma no
+ * soporta el mensaje, la clase base lanza
+ * {@link UnsupportedOperationException} y el controller la traduce
+ * a un HTTP 400.</p>
  *
  * @author Matías Jara (Vanzfranhait)
  */
@@ -74,6 +79,7 @@ public class VanzfranhaitController {
 
     /**
      * Lista todas las armas del inventario con su descripción.
+     * Cada objeto responde su propio {@code describir()} por polimorfismo.
      */
     @GetMapping("/armas")
     public Map<String, String> listarArmas() {
@@ -135,61 +141,65 @@ public class VanzfranhaitController {
     }
 
     /**
-     * Lanza una granada (si el arma es una granada).
+     * Lanza una granada. El controller NO verifica el tipo: le pide
+     * al objeto que se lance. Si no es una granada, la clase base
+     * responde con {@link UnsupportedOperationException}.
      */
     @PostMapping("/granadas/{nombre}/lanzar")
     public ResponseEntity<String> lanzarGranada(@PathVariable String nombre) {
         Arma arma = inventario.get(nombre);
-        if (!(arma instanceof Granada granada)) {
-            return ResponseEntity.badRequest()
-                .body(nombre + " no es una granada o no existe.");
+        if (arma == null) {
+            return ResponseEntity.notFound().build();
         }
-        if (granada.isLanzada()) {
-            return ResponseEntity.badRequest()
-                .body("La granada " + nombre + " ya fue lanzada.");
+        try {
+            arma.lanzar();
+        } catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        granada.lanzar();
-        return ResponseEntity.ok(
-            nombre + " lanzada. Explotará en " + granada.getTiempoActivacion() + "s.");
+        return ResponseEntity.ok(nombre + " lanzada.");
     }
 
     /**
-     * Explota una granada previamente lanzada.
+     * Explota una granada previamente lanzada. El controller NO verifica
+     * el tipo: el polimorfismo decide si el mensaje tiene sentido.
      */
     @PostMapping("/granadas/{nombre}/explotar")
     public ResponseEntity<String> explotarGranada(@PathVariable String nombre) {
         Arma arma = inventario.get(nombre);
-        if (!(arma instanceof Granada granada)) {
-            return ResponseEntity.badRequest()
-                .body(nombre + " no es una granada o no existe.");
+        if (arma == null) {
+            return ResponseEntity.notFound().build();
         }
-        if (!granada.isLanzada()) {
-            return ResponseEntity.badRequest()
-                .body("No se puede explotar una granada que no fue lanzada.");
+        int daño;
+        try {
+            daño = arma.explotar();
+        } catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        int daño = granada.explotar();
-        return ResponseEntity.ok(
-            nombre + " explotó. Daño en el centro: " + daño +
-            " | Radio: " + granada.getRadio() + "m");
+        return ResponseEntity.ok(nombre + " explotó. Daño en el centro: " + daño);
     }
 
     /**
-     * Cambia el zoom de un francotirador.
+     * Cambia el zoom de un francotirador. El controller NO verifica el tipo:
+     * el polimorfismo decide si el mensaje tiene sentido.
      */
     @PostMapping("/francotiradores/{nombre}/zoom/{nivel}")
     public ResponseEntity<String> cambiarZoom(@PathVariable String nombre,
                                               @PathVariable int nivel) {
         Arma arma = inventario.get(nombre);
-        if (!(arma instanceof Francotirador francotirador)) {
-            return ResponseEntity.badRequest()
-                .body(nombre + " no es un francotirador o no existe.");
+        if (arma == null) {
+            return ResponseEntity.notFound().build();
         }
         try {
-            francotirador.usarZoom(nivel);
+            arma.usarZoom(nivel);
+        } catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok(
-            nombre + " ahora tiene zoom x" + francotirador.getZoom());
+        return ResponseEntity.ok(nombre + " ahora tiene zoom x" + nivel);
     }
 }
