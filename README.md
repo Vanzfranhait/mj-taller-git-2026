@@ -1,9 +1,12 @@
 # mj-taller-git-2026
 
+> **Commit de la solución:** [`PENDIENTE_ACTUALIZAR`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/PENDIENTE_ACTUALIZAR)
+
 **Nombre:** Matías Jara
 **Usuario GitHub:** Vanzfranhait
 **Comisión:** CYT646 F
 **Asignatura:** Lenguaje de Programación 3 (LP3)
+**Dominio:** Counter-Strike 2
 
 ## Cómo levantar la API
 
@@ -23,17 +26,65 @@ Para detenerla: `Ctrl + C`
 ## Documentación
 
 - `RUN.md` — Instrucciones detalladas de ejecución
-- `docs/TALLER_GIT.md` — Guía del taller 
+- `docs/TALLER_GIT.md` — Guía del taller
+- `BITACORA.md` — Bitácora de asistencia de IA (marca, modelo de LLM, prompts)
+
+## Endpoints REST
+
+Una vez arrancado el servicio en `http://localhost:8080`:
+
+| Método | Ruta | Qué hace |
+|--------|------|----------|
+| `GET` | `/` | Confirma que el servicio está vivo. |
+| `GET` | `/api/armas` | Lista todas las armas del inventario con su descripción (JSON). |
+| `GET` | `/api/armas/{nombre}` | Devuelve la descripción de un arma específica. |
+| `POST` | `/api/armas/{nombre}/disparar` | Dispara el arma y devuelve el daño infligido. |
+| `POST` | `/api/armas/{nombre}/recargar` | Recarga el arma al máximo. |
+| `POST` | `/api/granadas/{nombre}/lanzar` | Lanza una granada (solo si es una granada). |
+| `POST` | `/api/granadas/{nombre}/explotar` | Explota una granada ya lanzada. |
+| `POST` | `/api/francotiradores/{nombre}/zoom/{nivel}` | Cambia el zoom de un francotirador. |
+| `GET` | `/api/construir/arma` | Construye un arma desde parámetros de URL y devuelve JSON. |
+
+### Ejemplos
+
+```bash
+# Confirmar que el servicio está vivo
+curl http://localhost:8080/
+
+# Listar todas las armas
+curl http://localhost:8080/api/armas
+
+# Ver un arma específica
+curl "http://localhost:8080/api/armas/AWP"
+
+# Disparar
+curl -X POST http://localhost:8080/api/armas/USP-S/disparar
+
+# Lanzar y explotar una granada
+curl -X POST http://localhost:8080/api/granadas/HE/lanzar
+curl -X POST http://localhost:8080/api/granadas/HE/explotar
+
+# Cambiar zoom de un francotirador
+curl -X POST http://localhost:8080/api/francotiradores/AWP/zoom/5
+
+# Construir un arma desde la URL
+curl "http://localhost:8080/api/construir/arma?nombre=Glock-18&dano=30&precio=200&municion=20&precision=0.8&equipo=T&cadencia=400&municionTipo=9mm"
+```
 
 ## Modelado POO
 
 El modelado de Counter-Strike 2 se encuentra en el paquete:
 
 ```
-src/main/java/py/edu/uc/lp3/cs2/
+src/main/java/py/edu/uc/lp3/domain/
 ```
 
-> 📌 El diagrama de clases y la documentación del modelo están en la **descripción del Pull Request**.
+Los servicios REST están en:
+
+```
+src/main/java/py/edu/uc/lp3/rest/controller/
+```
+
 ## Diagrama de clases (modelado CS2)
 
 ```mermaid
@@ -48,8 +99,12 @@ classDiagram
         -float precision
         -String equipo
         +disparar() int
+        +disparar(int) int
         +recargar() void
         +puedeDisparar() boolean
+        +lanzar() void
+        +explotar() int
+        +usarZoom(int) void
         +describir()* String
         +getTipo()* String
     }
@@ -83,8 +138,6 @@ classDiagram
         -boolean modoRafaga
         +cambiarModo() void
         +dispararRafaga() int
-        +describir()* String
-        +getTipo()* String
     }
 
     class Francotirador {
@@ -136,11 +189,12 @@ classDiagram
     ArmaLarga <|-- Subfusil
     ArmaLarga <|-- Escopeta
 ```
+
 ## Sobrecarga y sobreescritura
 
 ### Sobrecarga (overloading)
 
-La **sobrecarga** ocurre cuando varios métodos tienen el **mismo nombre** pero **distinta lista de argumentos** (distinta firma). En el dominio CS2 se aplica así:
+La **sobrecarga** ocurre cuando varios métodos tienen el **mismo nombre** pero **distinta lista de argumentos** (distinta firma). Se resuelve en tiempo de compilación.
 
 #### Sobrecarga de constructores
 
@@ -189,14 +243,17 @@ Mismo nombre (`disparar`), distinta firma. El segundo reutiliza al primero.
 
 ### Sobreescritura (overriding)
 
-La **sobreescritura** ocurre cuando una **clase hija redefine un método del padre** con la **misma firma**. En el dominio CS2:
+La **sobreescritura** ocurre cuando una **clase hija redefine un método del padre** con la **misma firma**. Se resuelve en tiempo de ejecución (polimorfismo dinámico).
 
 | Método | Declarado en | Sobreescrito por |
 |--------|-------------|------------------|
 | `describir()` | `Arma` (abstracto) | `ArmaCorta`, `Granada`, `Francotirador`, `RifleAsalto`, `Subfusil`, `Escopeta` |
 | `getTipo()` | `Arma` (abstracto) | Las 8 hijas |
-| `disparar()` | `Arma` | `Escopeta` (calcula daño según perdigones) |
-| `dispararRafaga()` | `ArmaLarga` | `RifleAsalto` (aumenta retroceso) |
+| `disparar()` | `Arma` | `Escopeta` (daño según perdigones), `Francotirador` (falla si no está estabilizado) |
+| `dispararRafaga()` | `ArmaLarga` | `RifleAsalto` (aumenta el retroceso) |
+| `lanzar()` | `Arma` (por defecto lanza `UnsupportedOperationException`) | `Granada` |
+| `explotar()` | `Arma` (por defecto lanza `UnsupportedOperationException`) | `Granada` |
+| `usarZoom(int)` | `Arma` (por defecto lanza `UnsupportedOperationException`) | `Francotirador` |
 
 **Ejemplo en código:**
 
@@ -214,22 +271,41 @@ public String describir() {
 
 **Diferencia clave:**
 
-- **Sobrecarga:** mismo nombre, **distinta firma** (parámetros)
-- **Sobreescritura:** mismo nombre, **misma firma**, en clase hija
+- **Sobrecarga:** mismo nombre, **distinta firma** (parámetros). Se resuelve en compilación.
+- **Sobreescritura:** mismo nombre, **misma firma**, en clase hija. Se resuelve en ejecución.
 
 ---
 
-### ¿Por qué importa el diseño?
+### Qué cambió respecto al modelado de septiembre
+
+En este ejercicio se agregaron los dos mecanismos sobre el modelado original:
+
+**Sobrecarga agregada:**
+
+- En `Arma`: constructor simplificado `Arma(String, int)` y método `disparar(int cantidad)`.
+- En `ArmaCorta`: constructor simplificado `ArmaCorta(String, int)`.
+
+**Sobreescritura agregada o explicitada:**
+
+- `@Override` en `describir()` y `getTipo()` de las 8 clases hijas (implementación de los abstractos de `Arma`).
+- `@Override` en `disparar()` de `Escopeta` (daño por perdigones) y de `Francotirador` (falla si no está estabilizado).
+- `@Override` en `dispararRafaga()` de `RifleAsalto` (aumenta el retroceso).
+- `@Override` en `lanzar()` y `explotar()` de `Granada`, y en `usarZoom(int)` de `Francotirador`, sobre métodos nuevos que la clase base `Arma` declara con `UnsupportedOperationException` por defecto.
+
+Ese último grupo es clave para el diseño: permitió eliminar los `instanceof` del `VanzfranhaitController`. El controller le pide a cualquier `Arma` que `lanzar()`, `explotar()` o `usarZoom()`, y es el propio objeto quien decide si puede o no. Si no puede, la clase base lanza la excepción y el controller la traduce a un HTTP 400.
+
+### Por qué importa el diseño
 
 El controller `VanzfranhaitController` trata todas las armas como tipo padre `Arma`:
 
 ```java
-for (Arma arma : inventario.values()) {
-    respuesta.put(arma.getNombre(), arma.describir());
+for (Map.Entry<String, Arma> entrada : inventario.entrySet()) {
+    respuesta.put(entrada.getKey(), entrada.getValue().describir());
 }
 ```
 
-**No hay `if (arma instanceof Francotirador)`.** Cada objeto responde su propio `describir()`. Eso es polimorfismo por sobreescritura.
+**No hay ningún `instanceof` en el código del controller.** Cada objeto responde su propio `describir()`, su propio `disparar()`, su propio `lanzar()`. Eso es polimorfismo por sobreescritura.
+
 ## Licencia
 
 Este proyecto está bajo la licencia **Apache 2.0**.
