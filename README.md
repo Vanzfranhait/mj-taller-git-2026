@@ -230,3 +230,7 @@ for (Arma arma : inventario.values()) {
 ```
 
 **No hay `if (arma instanceof Francotirador)`.** Cada objeto responde su propio `describir()`. Eso es polimorfismo por sobreescritura.
+## Licencia
+
+Este proyecto está bajo la licencia **Apache 2.0**.
+Ver el archivo [LICENSE](LICENSE) para el texto completo.
