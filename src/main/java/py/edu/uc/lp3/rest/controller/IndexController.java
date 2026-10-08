@@ -1,4 +1,4 @@
-package mj_taller_git_2026.cs2.web;
+package py.edu.uc.lp3.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

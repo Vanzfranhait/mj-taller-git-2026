@@ -1,4 +1,4 @@
-package mj_taller_git_2026.cs2;
+package py.edu.uc.lp3.domain;
 
 /**
  * Especialización de {@link ArmaLarga} que representa un rifle

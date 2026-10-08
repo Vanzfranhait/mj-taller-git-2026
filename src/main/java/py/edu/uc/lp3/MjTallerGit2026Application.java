@@ -1,4 +1,4 @@
-package mj_taller_git_2026;
+package py.edu.uc.lp3;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

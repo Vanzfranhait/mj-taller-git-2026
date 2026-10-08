@@ -1,4 +1,4 @@
-package mj_taller_git_2026.cs2.web;
+package py.edu.uc.lp3.rest.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import mj_taller_git_2026.cs2.Arma;
-import mj_taller_git_2026.cs2.ArmaCorta;
-import mj_taller_git_2026.cs2.Escopeta;
-import mj_taller_git_2026.cs2.Francotirador;
-import mj_taller_git_2026.cs2.Granada;
-import mj_taller_git_2026.cs2.RifleAsalto;
-import mj_taller_git_2026.cs2.Subfusil;
+import py.edu.uc.lp3.domain.Arma;
+import py.edu.uc.lp3.domain.ArmaCorta;
+import py.edu.uc.lp3.domain.Escopeta;
+import py.edu.uc.lp3.domain.Francotirador;
+import py.edu.uc.lp3.domain.Granada;
+import py.edu.uc.lp3.domain.RifleAsalto;
+import py.edu.uc.lp3.domain.Subfusil;
 
 /**
  * Controlador REST que expone el inventario de armas de CS2.

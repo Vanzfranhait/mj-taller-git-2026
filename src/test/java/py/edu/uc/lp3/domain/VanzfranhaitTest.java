@@ -1,4 +1,4 @@
-package mj_taller_git_2026.cs2;
+package py.edu.uc.lp3.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
