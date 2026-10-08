@@ -1,6 +1,6 @@
 # mj-taller-git-2026
 
-> **Commit de la solución:** [`PENDIENTE_ACTUALIZAR`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/PENDIENTE_ACTUALIZAR)
+> **Commit de la solución:** [`64f3f7b`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/64f3f7b)
 
 **Nombre:** Matías Jara
 **Usuario GitHub:** Vanzfranhait
