@@ -14,9 +14,9 @@ import py.edu.uc.lp3.service.SimulacionService;
 
 /**
  * Controller REST para disparar las simulaciones de reglas de negocio.
- *
- * <p>El controller NO tiene lógica de juego: solo llama al servicio,
- * que a su vez usa los métodos del dominio.</p>
+ * 
+ * <p>Ya no tiene try-catch: las excepciones del dominio son atrapadas
+ * por el GlobalExceptionHandler.</p>
  */
 @RestController
 @RequestMapping("/api/db/simular")
@@ -34,12 +34,8 @@ public class SimulacionController {
      */
     @PostMapping("/explosion/{granadaId}")
     public ResponseEntity<List<Arma>> explosion(@PathVariable Long granadaId) {
-        try {
-            List<Arma> resultado = simulacionService.simularExplosion(granadaId);
-            return ResponseEntity.ok(resultado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<Arma> resultado = simulacionService.simularExplosion(granadaId);
+        return ResponseEntity.ok(resultado);
     }
 
     /**
@@ -48,11 +44,7 @@ public class SimulacionController {
      */
     @PostMapping("/recarga/{francotiradorId}")
     public ResponseEntity<Francotirador> recargaRapida(@PathVariable Long francotiradorId) {
-        try {
-            Francotirador resultado = simulacionService.simularRecargaRapida(francotiradorId);
-            return ResponseEntity.ok(resultado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Francotirador resultado = simulacionService.simularRecargaRapida(francotiradorId);
+        return ResponseEntity.ok(resultado);
     }
 }

@@ -8,6 +8,8 @@ import py.edu.uc.lp3.domain.Arma;
 import py.edu.uc.lp3.domain.ArmaLarga;
 import py.edu.uc.lp3.domain.Francotirador;
 import py.edu.uc.lp3.domain.Granada;
+import py.edu.uc.lp3.exception.ArmaNoEncontradaException;
+import py.edu.uc.lp3.exception.ReglaDeJuegoException;
 import py.edu.uc.lp3.repository.ArmaRepository;
 
 /**
@@ -37,10 +39,10 @@ public class SimulacionService {
      */
     public List<Arma> simularExplosion(Long granadaId) {
         Arma arma = repository.findById(granadaId)
-                .orElseThrow(() -> new RuntimeException("Arma no encontrada"));
+                .orElseThrow(() -> new ArmaNoEncontradaException(granadaId));
 
         if (!(arma instanceof Granada granada)) {
-            throw new RuntimeException("El arma no es una granada");
+            throw new ReglaDeJuegoException("El arma no es una granada");
         }
 
         // Lanzar (si no se lanzó) y explotar
@@ -79,18 +81,18 @@ public class SimulacionService {
      */
     public Francotirador simularRecargaRapida(Long id) {
         Arma arma = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Arma no encontrada"));
+                .orElseThrow(() -> new ArmaNoEncontradaException(id));
 
         if (!(arma instanceof Francotirador francotirador)) {
-            throw new RuntimeException("El arma no es un francotirador");
+            throw new ReglaDeJuegoException("El arma no es un francotirador");
         }
 
         if (francotirador.getEstabilidad() <= 0.7f) {
-            throw new RuntimeException("El francotirador no está estabilizado");
+            throw new ReglaDeJuegoException("El francotirador no está estabilizado");
         }
 
         if (francotirador.getMunicionActual() < 2) {
-            throw new RuntimeException("No hay munición suficiente para el disparo rápido");
+            throw new ReglaDeJuegoException("No hay munición suficiente para el disparo rápido");
         }
 
         francotirador.disparar(2); // consume 2 municiones
