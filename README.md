@@ -1,6 +1,6 @@
 # mj-taller-git-2026
 
-> **Commit de la solución:** [`64f3f7b`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/64f3f7b)
+> **Commit de la solución:** [`b62df020c485b026ba6e30eb845ee9b7d06701b3`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/b62df020c485b026ba6e30eb845ee9b7d06701b3)
 
 **Nombre:** Matías Jara
 **Usuario GitHub:** Vanzfranhait
@@ -91,6 +91,7 @@ src/main/java/py/edu/uc/lp3/rest/controller/
 classDiagram
     class Arma {
         <<abstract>>
+        -Long id
         -String nombre
         -int daño
         -int precio
@@ -105,8 +106,17 @@ classDiagram
         +lanzar() void
         +explotar() int
         +usarZoom(int) void
+        +setMunicionActualParaSimulacion(int) void
+        +getId() Long
         +describir()* String
         +getTipo()* String
+    }
+
+    class Recargable {
+        <<interface>>
+        +recargar() void
+        +getMunicionActual() int
+        +getMunicionMax() int
     }
 
     class ArmaCorta {
@@ -116,8 +126,6 @@ classDiagram
         -boolean puedeRafaga
         +dispararRapido() int
         +apuntarPreciso() void
-        +describir() String
-        +getTipo() String
     }
 
     class Granada {
@@ -127,8 +135,6 @@ classDiagram
         -boolean lanzada
         +lanzar() void
         +explotar() int
-        +describir() String
-        +getTipo() String
     }
 
     class ArmaLarga {
@@ -146,8 +152,6 @@ classDiagram
         +usarZoom(int) void
         +aguantarRespiracion() void
         +respirar() void
-        +describir() String
-        +getTipo() String
     }
 
     class RifleAsalto {
@@ -156,8 +160,6 @@ classDiagram
         -float precisionRafaga
         +controlarRetroceso() void
         +descansar() void
-        +describir() String
-        +getTipo() String
     }
 
     class Subfusil {
@@ -166,8 +168,6 @@ classDiagram
         -float dispersionMovimiento
         +dispararCorriendo() int
         +aumentarMovilidad() void
-        +describir() String
-        +getTipo() String
     }
 
     class Escopeta {
@@ -176,10 +176,39 @@ classDiagram
         -int alcanceEfectivo
         +dispararRafagaCorta() int
         +calcularDañoTotal() int
-        +describir() String
-        +getTipo() String
     }
 
+    class ArmaRepository {
+        <<interface>>
+        +save(Arma) Arma
+        +findAll() List~Arma~
+        +findById(Long) Optional~Arma~
+        +deleteById(Long) void
+        +existsById(Long) boolean
+    }
+
+    class SimulacionService {
+        -ArmaRepository repository
+        +simularExplosion(Long) List~Arma~
+        +simularRecargaRapida(Long) Francotirador
+    }
+
+    class JuegoException {
+        <<abstract>>
+    }
+
+    class ArmaNoEncontradaException {
+    }
+
+    class ReglaDeJuegoException {
+    }
+
+    class GlobalExceptionHandler {
+        +handleArmaNoEncontrada() ResponseEntity
+        +handleReglaDeJuego() ResponseEntity
+    }
+
+    Recargable <|.. Arma
     Arma <|-- ArmaCorta
     Arma <|-- Granada
     Arma <|-- ArmaLarga
@@ -188,6 +217,13 @@ classDiagram
     ArmaLarga <|-- RifleAsalto
     ArmaLarga <|-- Subfusil
     ArmaLarga <|-- Escopeta
+
+    JuegoException <|-- ArmaNoEncontradaException
+    JuegoException <|-- ReglaDeJuegoException
+
+    SimulacionService --> ArmaRepository
+    SimulacionService --> Arma
+    GlobalExceptionHandler --> JuegoException
 ```
 
 ## Sobrecarga y sobreescritura
