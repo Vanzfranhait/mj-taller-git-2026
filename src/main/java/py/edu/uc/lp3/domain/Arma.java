@@ -1,5 +1,6 @@
 package py.edu.uc.lp3.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -185,6 +186,16 @@ public abstract class Arma {
             getNombre() + " no tiene zoom: no es un francotirador.");
     }
 
+    /**
+     * Método de simulación: reduce la munición a un valor específico.
+     * Solo debe usarse desde reglas de negocio.
+     */
+    public void setMunicionActualParaSimulacion(int nuevaMunicion) {
+        if (nuevaMunicion >= 0 && nuevaMunicion <= this.municionMax) {
+            this.municionActual = nuevaMunicion;
+        }
+    }
+
     // ------------------------------------------------------------------
     // Getters (solo lectura; no hay setters públicos)
     // ------------------------------------------------------------------
@@ -209,6 +220,8 @@ public abstract class Arma {
 
     /**
      * Devuelve el tipo de arma en texto (pistola, rifle, etc.).
+     * Se ignora en JSON para evitar conflictos con el discriminador.
      */
+    @JsonIgnore
     public abstract String getTipo();
 }

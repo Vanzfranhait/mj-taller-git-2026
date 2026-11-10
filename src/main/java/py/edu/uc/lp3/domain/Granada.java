@@ -1,5 +1,8 @@
 package py.edu.uc.lp3.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Entity;
 
 /**
@@ -43,18 +46,19 @@ public class Granada extends Arma {
     }
 
     /**
-     * Constructor de granada.
-     *
-     * @param nombre             nombre del arma
-     * @param daño               daño en el centro de la explosión
-     * @param precio             precio en la tienda
-     * @param equipo             "CT", "T" o "Ambos"
-     * @param tipo               "flash", "humo", "frag", "incendio", "molotov"
-     * @param radioExplosion     radio de efecto en metros
-     * @param tiempoActivacion   segundos hasta explotar
+     * Constructor de granada para Jackson.
+     * Usamos @JsonProperty("tipoGranada") para evitar conflicto con el
+     * discriminador @JsonTypeInfo(property = "tipo") de la clase Arma.
      */
-    public Granada(String nombre, int daño, int precio, String equipo,
-                   String tipo, int radioExplosion, float tiempoActivacion) {
+    @JsonCreator
+    public Granada(
+            @JsonProperty("nombre") String nombre,
+            @JsonProperty("daño") int daño,
+            @JsonProperty("precio") int precio,
+            @JsonProperty("equipo") String equipo,
+            @JsonProperty("tipoGranada") String tipo,
+            @JsonProperty("radioExplosion") int radioExplosion,
+            @JsonProperty("tiempoActivacion") float tiempoActivacion) {
         // Una granada tiene "municionMax = 1" porque solo se lanza una vez por compra
         super(nombre, daño, precio, 1, 1.0f, equipo);
 
