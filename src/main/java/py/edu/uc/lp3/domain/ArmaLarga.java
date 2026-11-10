@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.Entity;
+
 /**
  * Clase abstracta intermedia que agrupa las armas largas
  * (rifles, francotiradores, subfusiles, escopetas).
@@ -18,11 +20,22 @@ package py.edu.uc.lp3.domain;
  *
  * @author Matías Jara (Vanzfranhait)
  */
+@Entity
 public abstract class ArmaLarga extends Arma {
 
-    private final int alcance;          // metros
-    private final long cooldownMs;      // milisegundos entre disparos
-    private boolean modoRafaga;         // true = ráfaga, false = tiro a tiro
+    private int alcance;          // metros
+    private long cooldownMs;      // milisegundos entre disparos
+    private boolean modoRafaga;   // true = ráfaga, false = tiro a tiro
+
+    /**
+     * Constructor vacío requerido por JPA.
+     */
+    protected ArmaLarga() {
+        super();
+        this.alcance = 1;
+        this.cooldownMs = 1;
+        this.modoRafaga = false;
+    }
 
     /**
      * Constructor para armas largas.

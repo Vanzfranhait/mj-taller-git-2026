@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.Entity;
+
 /**
  * Especialización de {@link ArmaLarga} que representa un rifle
  * de francotirador (ej: AWP, SSG 08).
@@ -15,10 +17,20 @@ package py.edu.uc.lp3.domain;
  *
  * @author Matías Jara (Vanzfranhait)
  */
+@Entity
 public class Francotirador extends ArmaLarga {
 
     private int zoom;              // 1 a 10
     private float estabilidad;     // 0.0 a 1.0
+
+    /**
+     * Constructor vacío requerido por JPA.
+     */
+    protected Francotirador() {
+        super();
+        this.zoom = 1;
+        this.estabilidad = 0.0f;
+    }
 
     /**
      * Constructor de francotirador.

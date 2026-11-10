@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.Entity;
+
 /**
  * Clase de nivel 2 que representa una granada
  * (ej: HE, Flashbang, Smoke, Molotov, Incendiary).
@@ -17,16 +19,28 @@ package py.edu.uc.lp3.domain;
  *
  * @author Matías Jara (Vanzfranhait)
  */
+@Entity
 public class Granada extends Arma {
 
     private static final String[] TIPOS_VALIDOS = {
         "flash", "humo", "frag", "incendio", "molotov"
     };
 
-    private final String tipo;
-    private final int radioExplosion;       // metros
-    private final float tiempoActivacion;   // segundos
-    private boolean lanzada;                // true si ya fue lanzada
+    private String tipo;
+    private int radioExplosion;       // metros
+    private float tiempoActivacion;   // segundos
+    private boolean lanzada;          // true si ya fue lanzada
+
+    /**
+     * Constructor vacío requerido por JPA.
+     */
+    protected Granada() {
+        super();
+        this.tipo = "frag";
+        this.radioExplosion = 1;
+        this.tiempoActivacion = 1.0f;
+        this.lanzada = false;
+    }
 
     /**
      * Constructor de granada.

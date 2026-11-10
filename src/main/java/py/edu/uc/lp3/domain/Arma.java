@@ -1,5 +1,15 @@
 package py.edu.uc.lp3.domain;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+
 /**
  * Clase base abstracta que representa un arma de Counter-Strike 2.
  *
@@ -17,18 +27,49 @@ package py.edu.uc.lp3.domain;
  *
  * @author Matías Jara (Vanzfranhait)
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "tipo"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Francotirador.class, name = "francotirador"),
+    @JsonSubTypes.Type(value = Granada.class, name = "granada")
+})
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Arma {
+
+    // ------------------------------------------------------------------
+    // Identificador de persistencia (lo asigna la base de datos)
+    // ------------------------------------------------------------------
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     // ------------------------------------------------------------------
     // Atributos privados (ocultamiento: nadie de afuera los toca)
     // ------------------------------------------------------------------
-    private final String nombre;
-    private final int daño;
-    private final int precio;
-    private final int municionMax;
+    private String nombre;
+    private int daño;
+    private int precio;
+    private int municionMax;
     private int municionActual;
-    private final float precision;
-    private final String equipo;
+    private float precision;
+    private String equipo;
+
+    // ------------------------------------------------------------------
+    // Constructor vacío requerido por JPA
+    // ------------------------------------------------------------------
+    protected Arma() {
+        this.nombre = null;
+        this.daño = 0;
+        this.precio = 0;
+        this.municionMax = 1;
+        this.municionActual = 0;
+        this.precision = 0.0f;
+        this.equipo = null;
+    }
 
     // ------------------------------------------------------------------
     // Constructor protegido: solo las subclases pueden invocarlo
@@ -63,7 +104,7 @@ public abstract class Arma {
         this.equipo = equipo;
     }
 
-    // Constructor simplificado (NUEVO — sobrecarga)
+    // Constructor simplificado (sobrecarga)
     protected Arma(String nombre, int daño) {
         this(nombre, daño, 0, 1, 1.0f, "Ambos");
     }
@@ -84,7 +125,7 @@ public abstract class Arma {
         return daño;
     }
 
-    // Método sobrecargado (N disparos) — NUEVO
+    // Método sobrecargado (N disparos)
     public int disparar(int cantidad) {
         int dañoTotal = 0;
         for (int i = 0; i < cantidad && municionActual > 0; i++) {
@@ -110,7 +151,6 @@ public abstract class Arma {
     // ------------------------------------------------------------------
     // Mensajes opcionales: la clase base los declara "no soportados"
     // por defecto; las subclases que sí pueden los sobrescriben.
-    // Esto evita instanceof en la capa de entrada (controller).
     // ------------------------------------------------------------------
 
     /**
@@ -148,6 +188,7 @@ public abstract class Arma {
     // ------------------------------------------------------------------
     // Getters (solo lectura; no hay setters públicos)
     // ------------------------------------------------------------------
+    public Long getId()             { return id; }
     public String getNombre()       { return nombre; }
     public int getDaño()            { return daño; }
     public int getPrecio()          { return precio; }
