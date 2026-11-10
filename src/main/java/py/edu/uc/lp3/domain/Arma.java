@@ -39,7 +39,7 @@ import jakarta.persistence.InheritanceType;
 })
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Arma {
+public abstract class Arma implements Recargable {
 
     // ------------------------------------------------------------------
     // Identificador de persistencia (lo asigna la base de datos)

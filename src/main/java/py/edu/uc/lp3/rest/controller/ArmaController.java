@@ -1,5 +1,5 @@
 package py.edu.uc.lp3.rest.controller;
-
+import py.edu.uc.lp3.domain.Recargable;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -74,5 +74,14 @@ public class ArmaController {
         }
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+    // 6. READ (GET) - Listar solo las armas recargables (usa la interfaz)
+    @GetMapping("/recargables")
+    public List<Recargable> listarRecargables() {
+        // Como todas las armas implementan Recargable, devolvemos todas
+        return repository.findAll().stream()
+                .filter(a -> a instanceof Recargable)
+                .map(a -> (Recargable) a)
+                .toList();
     }
 }
