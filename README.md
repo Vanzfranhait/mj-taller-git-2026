@@ -306,6 +306,74 @@ for (Map.Entry<String, Arma> entrada : inventario.entrySet()) {
 
 **No hay ningún `instanceof` en el código del controller.** Cada objeto responde su propio `describir()`, su propio `disparar()`, su propio `lanzar()`. Eso es polimorfismo por sobreescritura.
 
+## POO-08 — Persistencia, reglas y excepciones
+
+### Base de datos H2
+
+El proyecto usa H2 en memoria (`jdbc:h2:mem:cs2db`). Las tablas se crean automáticamente al arrancar (`spring.jpa.hibernate.ddl-auto=create-drop`). Al detener el servicio, la base se borra (es solo para desarrollo).
+
+### Las dos reglas de negocio
+
+1. **Explosión de Granada**: cuando una granada explota, todas las armas con alcance menor al radio de la explosión pierden la mitad de su munición. El cambio se persiste en H2.
+2. **Recarga Rápida de Francotirador**: un francotirador con estabilidad > 0.7 puede disparar rápido (consume 2 de munición), pero queda inestable (estabilidad 0.5) después.
+
+### Jerarquía de excepciones
+
+- `JuegoException` (base)
+  - `ArmaNoEncontradaException` → 404 Not Found
+  - `ReglaDeJuegoException` → 400 Bad Request
+
+El `GlobalExceptionHandler` atrapa cada tipo y devuelve un JSON con `"error"` y `"mensaje"`.
+
+### Interfaz de dominio
+
+`Recargable` es implementada por todas las armas (vía `Arma`). El endpoint `GET /api/db/armas/recargables` usa el tipo de la interfaz.
+
+### Endpoints nuevos (POO-08)
+
+| Método | Ruta | Qué hace |
+|--------|------|----------|
+| `POST` | `/api/db/armas` | Crea un arma (Francotirador o Granada) y la guarda en H2. |
+| `GET` | `/api/db/armas` | Lista todas las armas persistidas. |
+| `GET` | `/api/db/armas/{id}` | Busca un arma por ID (404 si no existe). |
+| `PATCH` | `/api/db/armas/{id}/recargar` | Recarga un arma (usa mensaje del dominio). |
+| `DELETE` | `/api/db/armas/{id}` | Borra un arma. |
+| `GET` | `/api/db/armas/recargables` | Lista armas usando la interfaz `Recargable`. |
+| `POST` | `/api/db/simular/explosion/{id}` | Simula explosión de granada (Regla 1). |
+| `POST` | `/api/db/simular/recarga/{id}` | Simula recarga rápida de francotirador (Regla 2). |
+
+### Colección Insomnia
+
+En `insomnia/coleccion-poo-08.json`. Para usarla:
+1. Abrir Insomnia.
+2. Menú de colección → Import → seleccionar el archivo.
+3. Ejecutar en orden: crear AWP, crear HE, listar, simular, probar errores.
+
+### Cómo probar desde terminal (sin Insomnia)
+
+```bash
+# Crear AWP
+curl -X POST http://localhost:8080/api/db/armas \
+  -H "Content-Type: application/json" \
+  -d '{"tipo":"francotirador","nombre":"AWP","daño":115,"precio":4750,"municionMax":10,"municionActual":10,"precision":1.0,"equipo":"Ambos","alcance":100,"cadencia":40,"zoom":10}'
+
+# Crear HE
+curl -X POST http://localhost:8080/api/db/armas \
+  -H "Content-Type: application/json" \
+  -d '{"tipo":"granada","nombre":"HE","daño":98,"precio":300,"equipo":"Ambos","tipoGranada":"frag","radioExplosion":50,"tiempoActivacion":1.6}'
+
+# Listar
+curl http://localhost:8080/api/db/armas
+
+# Simular explosión (asumiendo que HE es id=2)
+curl -X POST http://localhost:8080/api/db/simular/explosion/2
+
+# Verificar
+curl http://localhost:8080/api/db/armas
+
+# Probar errores
+curl -i http://localhost:8080/api/db/armas/999
+curl -i -X POST http://localhost:8080/api/db/simular/explosion/1
 ## Licencia
 
 Este proyecto está bajo la licencia **Apache 2.0**.
