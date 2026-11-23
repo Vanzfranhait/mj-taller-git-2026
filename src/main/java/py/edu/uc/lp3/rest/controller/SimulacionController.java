@@ -47,4 +47,10 @@ public class SimulacionController {
         Francotirador resultado = simulacionService.simularRecargaRapida(francotiradorId);
         return ResponseEntity.ok(resultado);
     }
+    @PostMapping("/aguantar/{francotiradorId}")
+    public ResponseEntity<Francotirador> aguantarRespiracion(@PathVariable Long francotiradorId) {
+        Francotirador resultado = simulacionService.aguantarRespiracion(francotiradorId);
+        return ResponseEntity.ok(resultado);
+
+    }
 }

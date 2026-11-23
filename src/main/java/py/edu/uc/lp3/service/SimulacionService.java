@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import py.edu.uc.lp3.repository.ArmaRepository;
  * @author Matías Jara (Vanzfranhait)
  */
 @Service
+@Transactional
 public class SimulacionService {
 
     private final ArmaRepository repository;
@@ -37,6 +40,7 @@ public class SimulacionService {
      * @param granadaId ID de la granada que explota.
      * @return Lista de todas las armas (con los estados ya persistidos).
      */
+    @Transactional
     public List<Arma> simularExplosion(Long granadaId) {
         Arma arma = repository.findById(granadaId)
                 .orElseThrow(() -> new ArmaNoEncontradaException(granadaId));
@@ -44,14 +48,15 @@ public class SimulacionService {
         if (!(arma instanceof Granada granada)) {
             throw new ReglaDeJuegoException("El arma no es una granada");
         }
-
-        // Lanzar (si no se lanzó) y explotar
-        if (!granada.isLanzada()) {
-            granada.lanzar();
+        
+        // El service controla que no explote dos veces
+        if (granada.isLanzada()) {
+            throw new ReglaDeJuegoException("La granada ya fue lanzada y no puede volver a explotar");
         }
+
+        granada.lanzar();
         int radio = granada.getRadio();
 
-        // Reducir munición a las armas dentro del radio
         List<Arma> todas = repository.findAll();
         for (Arma a : todas) {
             if (!a.getId().equals(granadaId)) {
@@ -59,18 +64,16 @@ public class SimulacionService {
                 if (a instanceof ArmaLarga larga) {
                     alcance = larga.getAlcance();
                 }
-
                 if (alcance < radio) {
                     int nuevaMunicion = a.getMunicionActual() / 2;
                     a.setMunicionActualParaSimulacion(nuevaMunicion);
-                    repository.save(a); // Persistimos el cambio
+                    repository.save(a);
                 }
             }
         }
-        repository.save(granada); // Persistimos la granada (ya lanzada)
+        repository.save(granada);
         return todas;
     }
-
     /**
      * REGLA 2: Recarga Rápida de Francotirador.
      * Un francotirador con estabilidad > 0.7 puede hacer un disparo rápido
@@ -100,4 +103,16 @@ public class SimulacionService {
 
         return repository.save(francotirador);
     }
+    // ENDPOINT AUXILIAR (nuevo, para poder probar la Regla 2 desde HTTP)
+    public Francotirador aguantarRespiracion(Long id) {
+    Arma arma = repository.findById(id)
+            .orElseThrow(() -> new ArmaNoEncontradaException(id));
+
+    if (!(arma instanceof Francotirador francotirador)) {
+        throw new ReglaDeJuegoException("El arma no es un francotirador");
+    }
+
+    francotirador.aguantarRespiracion();
+    return repository.save(francotirador);
+}
 }
