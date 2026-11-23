@@ -1,5 +1,5 @@
 package py.edu.uc.lp3.rest.controller;
-import py.edu.uc.lp3.domain.Recargable;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -14,74 +14,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import py.edu.uc.lp3.domain.Arma;
-import py.edu.uc.lp3.exception.ArmaNoEncontradaException;
-import py.edu.uc.lp3.repository.ArmaRepository;
+import py.edu.uc.lp3.domain.Recargable;
+import py.edu.uc.lp3.service.ArmaService;
 
-/**
- * Controller REST para el CRUD de la familia Arma.
- * Usa ArmaNoEncontradaException para manejar los 404.
- */
+import py.edu.uc.lp3.rest.dto.ArmaRequest;
+
 @RestController
 @RequestMapping("/api/db/armas")
 public class ArmaController {
 
-    private final ArmaRepository repository;
+    private final ArmaService armaService;
 
-    // Inyección de dependencias por constructor
-    public ArmaController(ArmaRepository repository) {
-        this.repository = repository;
+    public ArmaController(ArmaService armaService) {
+        this.armaService = armaService;
     }
 
-    // 1. CREATE (POST) - Crear un arma desde JSON
     @PostMapping
-    public ResponseEntity<Arma> crearArma(@RequestBody Arma arma) {
-        if (arma.getClass() == Arma.class) {
-            return ResponseEntity.badRequest().build();
-        }
-        Arma guardada = repository.save(arma);
-        return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
+    public ResponseEntity<Arma> crearArma(@RequestBody ArmaRequest req) {
+    Arma guardada = armaService.crearDesdeRequest(req);
+    return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
-    // 2. READ ALL (GET) - Listar todas las armas persistidas
     @GetMapping
     public List<Arma> listarArmas() {
-        return repository.findAll();
+        return armaService.listarArmas();
     }
 
-    // 3. READ ONE (GET por ID) - Buscar un arma por su ID
     @GetMapping("/{id}")
     public ResponseEntity<Arma> buscarPorId(@PathVariable Long id) {
-        Arma arma = repository.findById(id)
-                .orElseThrow(() -> new ArmaNoEncontradaException(id));
+        Arma arma = armaService.buscarPorId(id);
         return ResponseEntity.ok(arma);
     }
 
-    // 4. UPDATE (PATCH) - Recargar un arma (usa un mensaje del dominio)
     @PatchMapping("/{id}/recargar")
     public ResponseEntity<Arma> recargarArma(@PathVariable Long id) {
-        Arma arma = repository.findById(id)
-                .orElseThrow(() -> new ArmaNoEncontradaException(id));
-        
-        arma.recargar(); 
-        return ResponseEntity.ok(repository.save(arma)); 
+        Arma arma = armaService.recargarArma(id);
+        return ResponseEntity.ok(arma);
     }
 
-    // 5. DELETE (DELETE por ID) - Borrar un arma
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> borrarArma(@PathVariable Long id) {
-        if (!repository.existsById(id)) {
-            throw new ArmaNoEncontradaException(id);
-        }
-        repository.deleteById(id);
+        armaService.borrarArma(id);
         return ResponseEntity.noContent().build();
     }
-    // 6. READ (GET) - Listar solo las armas recargables (usa la interfaz)
+
     @GetMapping("/recargables")
     public List<Recargable> listarRecargables() {
-        // Como todas las armas implementan Recargable, devolvemos todas
-        return repository.findAll().stream()
-                .filter(a -> a instanceof Recargable)
-                .map(a -> (Recargable) a)
-                .toList();
+        return armaService.listarRecargables();
     }
 }
