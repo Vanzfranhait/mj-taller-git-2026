@@ -1,22 +1,24 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2026-11-10T09:00:00.000Z",
+  "__export_date": "2026-11-23T12:00:00.000Z",
   "__export_source": "insomnia.desktop.app:v2023.5.8",
   "resources": [
     {
       "_id": "env_base",
       "_type": "environment",
-      "parentId": null,
+      "parentId": "__WORKSPACE_ID__",
       "name": "Base Environment",
       "data": {
-        "base_url": "http://localhost:8080"
+        "base_url": "http://localhost:8080",
+        "awp_id": "1",
+        "he_id": "2"
       }
     },
     {
       "_id": "folder_crud",
       "_type": "request_group",
-      "parentId": null,
+      "parentId": "__WORKSPACE_ID__",
       "name": "CRUD Armas"
     },
     {
@@ -28,7 +30,7 @@
       "url": "{{ _.base_url }}/api/db/armas",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"tipo\": \"francotirador\",\n  \"nombre\": \"AWP\",\n  \"daño\": 115,\n  \"precio\": 4750,\n  \"municionMax\": 10,\n  \"municionActual\": 10,\n  \"precision\": 1.0,\n  \"equipo\": \"Ambos\",\n  \"alcance\": 100,\n  \"cadencia\": 40,\n  \"zoom\": 10\n}"
+        "text": "{\n  \"tipo\": \"francotirador\",\n  \"nombre\": \"AWP\",\n  \"daño\": 115,\n  \"precio\": 4750,\n  \"municionMax\": 10,\n  \"precision\": 1.0,\n  \"equipo\": \"AMBOS\",\n  \"alcance\": 100,\n  \"cadencia\": 40,\n  \"zoom\": 10\n}"
       }
     },
     {
@@ -40,7 +42,7 @@
       "url": "{{ _.base_url }}/api/db/armas",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"tipo\": \"granada\",\n  \"nombre\": \"HE\",\n  \"daño\": 98,\n  \"precio\": 300,\n  \"equipo\": \"Ambos\",\n  \"tipoGranada\": \"frag\",\n  \"radioExplosion\": 50,\n  \"tiempoActivacion\": 1.6\n}"
+        "text": "{\n  \"tipo\": \"granada\",\n  \"nombre\": \"HE\",\n  \"daño\": 98,\n  \"precio\": 300,\n  \"equipo\": \"AMBOS\",\n  \"tipoGranada\": \"frag\",\n  \"radioExplosion\": 50,\n  \"tiempoActivacion\": 1.6\n}"
       }
     },
     {
@@ -57,7 +59,15 @@
       "parentId": "folder_crud",
       "name": "GET Arma por ID",
       "method": "GET",
-      "url": "{{ _.base_url }}/api/db/armas/1"
+      "url": "{{ _.base_url }}/api/db/armas/{{ _.awp_id }}"
+    },
+    {
+      "_id": "req_get_recargables",
+      "_type": "request",
+      "parentId": "folder_crud",
+      "name": "GET Armas recargables (interfaz)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/db/armas/recargables"
     },
     {
       "_id": "req_patch_recargar",
@@ -65,7 +75,7 @@
       "parentId": "folder_crud",
       "name": "PATCH Recargar arma",
       "method": "PATCH",
-      "url": "{{ _.base_url }}/api/db/armas/1/recargar"
+      "url": "{{ _.base_url }}/api/db/armas/{{ _.awp_id }}/recargar"
     },
     {
       "_id": "req_delete_arma",
@@ -73,13 +83,29 @@
       "parentId": "folder_crud",
       "name": "DELETE Borrar arma",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/api/db/armas/1"
+      "url": "{{ _.base_url }}/api/db/armas/{{ _.awp_id }}"
     },
     {
       "_id": "folder_sim",
       "_type": "request_group",
-      "parentId": null,
+      "parentId": "__WORKSPACE_ID__",
       "name": "Simulación"
+    },
+    {
+      "_id": "req_sim_aguantar",
+      "_type": "request",
+      "parentId": "folder_sim",
+      "name": "POST Aguantar respiración (estabiliza)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/db/simular/aguantar/{{ _.awp_id }}"
+    },
+    {
+      "_id": "req_sim_recarga_ok",
+      "_type": "request",
+      "parentId": "folder_sim",
+      "name": "POST Simular Recarga Rápida (caso feliz)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/db/simular/recarga/{{ _.awp_id }}"
     },
     {
       "_id": "req_sim_explosion",
@@ -87,20 +113,12 @@
       "parentId": "folder_sim",
       "name": "POST Simular Explosión (Granada)",
       "method": "POST",
-      "url": "{{ _.base_url }}/api/db/simular/explosion/2"
-    },
-    {
-      "_id": "req_sim_recarga",
-      "_type": "request",
-      "parentId": "folder_sim",
-      "name": "POST Simular Recarga Rápida (Francotirador)",
-      "method": "POST",
-      "url": "{{ _.base_url }}/api/db/simular/recarga/1"
+      "url": "{{ _.base_url }}/api/db/simular/explosion/{{ _.he_id }}"
     },
     {
       "_id": "folder_errors",
       "_type": "request_group",
-      "parentId": null,
+      "parentId": "__WORKSPACE_ID__",
       "name": "Errores (Excepciones)"
     },
     {
@@ -117,7 +135,7 @@
       "parentId": "folder_errors",
       "name": "POST Explotar arma que no es granada (400)",
       "method": "POST",
-      "url": "{{ _.base_url }}/api/db/simular/explosion/1"
+      "url": "{{ _.base_url }}/api/db/simular/explosion/{{ _.awp_id }}"
     },
     {
       "_id": "req_err_400_estabilidad",
@@ -125,7 +143,19 @@
       "parentId": "folder_errors",
       "name": "POST Recarga rápida sin estabilidad (400)",
       "method": "POST",
-      "url": "{{ _.base_url }}/api/db/simular/recarga/1"
+      "url": "{{ _.base_url }}/api/db/simular/recarga/{{ _.awp_id }}"
+    },
+    {
+      "_id": "req_err_400_tipo",
+      "_type": "request",
+      "parentId": "folder_errors",
+      "name": "POST Tipo de arma inválido (400)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/db/armas",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"nuclear\",\n  \"nombre\": \"Bomba\"\n}"
+      }
     }
   ]
 }
