@@ -36,17 +36,11 @@ public class Subfusil extends ArmaLarga {
      * @param dispersionMovimiento  dispersión al moverse (0.0 a 1.0)
      */
     public Subfusil(String nombre, int daño, int precio, int municionMax,
-                    float precision, String equipo,
+                    float precision, Equipo equipo,
                     int alcance, int cadencia,
                     float movilidad, float dispersionMovimiento) {
         super(nombre, daño, precio, municionMax, precision, equipo, alcance, cadencia);
 
-        if (movilidad < 0.0f || movilidad > 1.0f) {
-            throw new IllegalArgumentException("La movilidad debe estar entre 0.0 y 1.0");
-        }
-        if (dispersionMovimiento < 0.0f || dispersionMovimiento > 1.0f) {
-            throw new IllegalArgumentException("La dispersión debe estar entre 0.0 y 1.0");
-        }
 
         this.movilidad = movilidad;
         this.movilidadBase = movilidad;

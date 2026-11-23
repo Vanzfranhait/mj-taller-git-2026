@@ -37,16 +37,10 @@ public class ArmaCorta extends Arma {
      * @param puedeRafaga   si puede disparar en ráfaga
      */
     public ArmaCorta(String nombre, int daño, int precio, int municionMax,
-                     float precision, String equipo,
+                     float precision, Equipo equipo,
                      int cadencia, String tipoMunicion, boolean puedeRafaga) {
         super(nombre, daño, precio, municionMax, precision, equipo);
 
-        if (cadencia < 1 || cadencia > 1500) {
-            throw new IllegalArgumentException("La cadencia debe estar entre 1 y 1500 RPM");
-        }
-        if (tipoMunicion == null || tipoMunicion.isBlank()) {
-            throw new IllegalArgumentException("El tipo de munición no puede estar vacío");
-        }
 
         this.cadencia = cadencia;
         this.cooldownMs = 60000L / cadencia;   // conversión RPM -> ms
@@ -55,7 +49,7 @@ public class ArmaCorta extends Arma {
     }
     // Constructor simplificado (NUEVO — sobrecarga)
     public ArmaCorta(String nombre, int daño) {
-        this(nombre, daño, 200, 12, 0.8f, "Ambos", 350, "9mm", false);
+        this(nombre, daño, 200, 12, 0.8f, Equipo.AMBOS, 350, "9mm", false);
     }
 
     /**

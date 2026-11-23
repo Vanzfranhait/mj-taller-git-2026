@@ -36,17 +36,11 @@ public class RifleAsalto extends ArmaLarga {
      * @param precisionRafaga  precisión en ráfaga (0.0 a 1.0)
      */
     public RifleAsalto(String nombre, int daño, int precio, int municionMax,
-                       float precision, String equipo,
+                       float precision, Equipo equipo,
                        int alcance, int cadencia,
                        int retroceso, float precisionRafaga) {
         super(nombre, daño, precio, municionMax, precision, equipo, alcance, cadencia);
 
-        if (retroceso < 1 || retroceso > 10) {
-            throw new IllegalArgumentException("El retroceso debe estar entre 1 y 10");
-        }
-        if (precisionRafaga < 0.0f || precisionRafaga > 1.0f) {
-            throw new IllegalArgumentException("La precisión en ráfaga debe estar entre 0.0 y 1.0");
-        }
 
         this.retroceso = retroceso;
         this.retrocesoBase = retroceso;

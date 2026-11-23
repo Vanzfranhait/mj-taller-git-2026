@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import py.edu.uc.lp3.domain.Equipo;
 import py.edu.uc.lp3.domain.ArmaCorta;
 
 /**
@@ -39,9 +40,10 @@ public class ConstruccionController {
             @RequestParam String municionTipo) {
 
         try {
-            ArmaCorta arma = new ArmaCorta(
+            	Equipo equipoEnum = Equipo.valueOf(equipo.toUpperCase());
+		ArmaCorta arma = new ArmaCorta(
                 nombre, dano, precio, municion, precision,
-                equipo, cadencia, municionTipo, false);
+                equipoEnum, cadencia, municionTipo, false);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("exito", true);

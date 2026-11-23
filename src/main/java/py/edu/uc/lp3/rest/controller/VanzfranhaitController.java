@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import py.edu.uc.lp3.domain.Equipo;
 import py.edu.uc.lp3.domain.Arma;
 import py.edu.uc.lp3.domain.ArmaCorta;
 import py.edu.uc.lp3.domain.Escopeta;
@@ -47,30 +48,15 @@ public class VanzfranhaitController {
      * Constructor: carga el inventario inicial.
      * Cada instancia se construye con datos coherentes.
      */
-    public VanzfranhaitController() {
-        inventario.put("AWP", new Francotirador(
-            "AWP", 115, 4750, 10, 1.0f, "Ambos", 100, 41, 10));
-
-        inventario.put("AK-47", new RifleAsalto(
-            "AK-47", 36, 2700, 30, 0.8f, "T", 80, 600, 8, 0.6f));
-
-        inventario.put("MP9", new Subfusil(
-            "MP9", 26, 1250, 30, 0.7f, "CT", 50, 857, 1.0f, 0.3f));
-
-        inventario.put("Nova", new Escopeta(
-            "Nova", 26, 1050, 8, 0.6f, "Ambos", 30, 70, 9, 0.4f, 15));
-
-        inventario.put("USP-S", new ArmaCorta(
-            "USP-S", 35, 200, 12, 0.9f, "CT", 350, "9mm", false));
-
-        inventario.put("Glock-18", new ArmaCorta(
-            "Glock-18", 30, 200, 20, 0.8f, "T", 400, "9mm", true));
-
-        inventario.put("HE", new Granada(
-            "HE", 98, 300, "Ambos", "frag", 8, 1.6f));
-
-        inventario.put("Flashbang", new Granada(
-            "Flashbang", 0, 200, "Ambos", "flash", 10, 1.6f));
+    public VanzfranhaitController() { 
+	inventario.put("AWP", new Francotirador("AWP", 115, 4750, 10, 1.0f, Equipo.AMBOS, 100, 41, 10));
+	inventario.put("AK-47", new RifleAsalto("AK-47", 36, 2700, 30, 0.8f, Equipo.T, 80, 600, 8, 0.6f));
+	inventario.put("MP9", new Subfusil("MP9", 26, 1250, 30, 0.7f, Equipo.CT, 50, 857, 1.0f, 0.3f));
+	inventario.put("Nova", new Escopeta("Nova", 26, 1050, 8, 0.6f, Equipo.AMBOS, 30, 70, 9, 0.4f, 15));
+	inventario.put("USP-S", new ArmaCorta("USP-S", 35, 200, 12, 0.9f, Equipo.CT, 350, "9mm", false));
+	inventario.put("Glock-18", new ArmaCorta("Glock-18", 30, 200, 20, 0.8f, Equipo.T, 400, "9mm", true));
+	inventario.put("HE", new Granada("HE", 98, 300, Equipo.AMBOS, "frag", 8, 1.6f));
+	inventario.put("Flashbang", new Granada("Flashbang", 0, 200, Equipo.AMBOS, "flash", 10, 1.6f));
     }
 
     // ------------------------------------------------------------------

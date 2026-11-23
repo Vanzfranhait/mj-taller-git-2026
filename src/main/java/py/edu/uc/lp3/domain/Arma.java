@@ -57,59 +57,36 @@ public abstract class Arma implements Recargable {
     private int municionMax;
     private int municionActual;
     private float precision;
-    private String equipo;
+    private Equipo equipo;
 
+     //...
     // ------------------------------------------------------------------
-    // Constructor vacío requerido por JPA
+    // Constructor protegido: solo las subclases pueden invocarlo
     // ------------------------------------------------------------------
     protected Arma() {
-        this.nombre = null;
+        this.nombre = "Sin nombre";
         this.daño = 0;
         this.precio = 0;
         this.municionMax = 1;
         this.municionActual = 0;
         this.precision = 0.0f;
-        this.equipo = null;
+        this.equipo = Equipo.AMBOS;
     }
 
-    // ------------------------------------------------------------------
-    // Constructor protegido: solo las subclases pueden invocarlo
-    // ------------------------------------------------------------------
     protected Arma(String nombre, int daño, int precio, int municionMax,
-                   float precision, String equipo) {
-        if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
-        }
-        if (daño < 0) {
-            throw new IllegalArgumentException("El daño no puede ser negativo");
-        }
-        if (precio < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
-        }
-        if (municionMax <= 0) {
-            throw new IllegalArgumentException("La munición máxima debe ser positiva");
-        }
-        if (precision < 0.0f || precision > 1.0f) {
-            throw new IllegalArgumentException("La precisión debe estar entre 0.0 y 1.0");
-        }
-        if (equipo == null || equipo.isBlank()) {
-            throw new IllegalArgumentException("El equipo no puede estar vacío");
-        }
-
-        this.nombre = nombre;
-        this.daño = daño;
-        this.precio = precio;
-        this.municionMax = municionMax;
-        this.municionActual = municionMax;   // arranca con cargador lleno
-        this.precision = precision;
-        this.equipo = equipo;
+                   float precision, Equipo equipo) {
+        this.nombre = (nombre == null || nombre.isBlank()) ? "Sin nombre" : nombre;
+        this.daño = Math.max(0, daño);
+        this.precio = Math.max(0, precio);
+        this.municionMax = Math.max(1, municionMax);
+        this.municionActual = this.municionMax;
+        this.precision = Math.max(0.0f, Math.min(1.0f, precision));
+        this.equipo = (equipo == null) ? Equipo.AMBOS : equipo;
     }
 
-    // Constructor simplificado (sobrecarga)
     protected Arma(String nombre, int daño) {
-        this(nombre, daño, 0, 1, 1.0f, "Ambos");
+        this(nombre, daño, 0, 1, 1.0f, Equipo.AMBOS);
     }
-
     // ------------------------------------------------------------------
     // Comportamientos comunes (mensajes que cambian el estado)
     // ------------------------------------------------------------------
@@ -159,41 +136,26 @@ public abstract class Arma implements Recargable {
      *
      * @throws UnsupportedOperationException si el arma no se lanza
      */
-    public void lanzar() {
-        throw new UnsupportedOperationException(
-            getNombre() + " no se puede lanzar: no es una granada.");
-    }
+    public void lanzar() { }
 
-    /**
-     * Explota el arma. Solo las granadas lo soportan.
-     *
-     * @return el daño infligido en el centro de la explosión
-     * @throws UnsupportedOperationException si el arma no explota
-     */
-    public int explotar() {
-        throw new UnsupportedOperationException(
-            getNombre() + " no puede explotar: no es una granada.");
-    }
+    /** * Explota el arma. Solo las granadas lo soportan. * * @return el daño infligido en el centro de la explosión * @throws UnsupportedOperationException si 
+     el arma no explota */
+    public int explotar() { return 0; } 
 
-    /**
+     /**
      * Cambia el zoom. Solo los francotiradores lo soportan.
      *
      * @param nivel nivel de zoom deseado
      * @throws UnsupportedOperationException si el arma no tiene zoom
      */
-    public void usarZoom(int nivel) {
-        throw new UnsupportedOperationException(
-            getNombre() + " no tiene zoom: no es un francotirador.");
-    }
+    public void usarZoom(int nivel) { } 
 
     /**
      * Método de simulación: reduce la munición a un valor específico.
      * Solo debe usarse desde reglas de negocio.
      */
     public void setMunicionActualParaSimulacion(int nuevaMunicion) {
-        if (nuevaMunicion >= 0 && nuevaMunicion <= this.municionMax) {
-            this.municionActual = nuevaMunicion;
-        }
+            this.municionActual = nuevaMunicion;// El service valida el rango
     }
 
     // ------------------------------------------------------------------
@@ -206,8 +168,7 @@ public abstract class Arma implements Recargable {
     public int getMunicionMax()     { return municionMax; }
     public int getMunicionActual()  { return municionActual; }
     public float getPrecision()     { return precision; }
-    public String getEquipo()       { return equipo; }
-
+    public Equipo getEquipo() { return equipo; }
     // ------------------------------------------------------------------
     // Comportamiento que las subclases DEBEN implementar
     // ------------------------------------------------------------------

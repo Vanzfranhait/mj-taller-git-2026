@@ -1,35 +1,32 @@
 package py.edu.uc.lp3.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests unitarios que verifican los invariantes del dominio CS2.
- *
- * <p>Estos tests demuestran que las clases del dominio NO permiten
- * que un objeto quede en un estado inválido, ni siquiera desde fuera.</p>
- *
- * @author Matías Jara (Vanzfranhait)
+ * Tests unitarios que verifican el comportamiento del dominio CS2
+ * despues de la refactorizacion (sin excepciones en el dominio).
  */
 class VanzfranhaitTest {
 
     // ------------------------------------------------------------------
-    // Test 1: Francotirador rechaza zoom fuera de rango
+    // Test 1: Francotirador ajusta zoom dentro de rango
     // ------------------------------------------------------------------
     @Test
-    void francotirador_noAceptaZoomFueraDeRango() {
+    void francotirador_ajustaZoomDentroDeRango() {
         Francotirador awp = new Francotirador(
-            "AWP", 115, 4750, 10, 1.0f, "Ambos", 100, 41, 10);
+            "AWP", 115, 4750, 10, 1.0f, Equipo.AMBOS, 100, 41, 10);
 
-        // Invariante: zoom entre 1 y 10
-        assertThrows(IllegalArgumentException.class, () -> awp.usarZoom(0));
-        assertThrows(IllegalArgumentException.class, () -> awp.usarZoom(11));
-        assertThrows(IllegalArgumentException.class, () -> awp.usarZoom(-5));
+        // El zoom ahora se limita internamente sin lanzar excepcion
+        awp.usarZoom(0);
+        assertEquals(1, awp.getZoom()); // Se ajustó al mínimo
 
-        // El zoom válido sí funciona
+        awp.usarZoom(15);
+        assertEquals(10, awp.getZoom()); // Se ajustó al máximo
+
         awp.usarZoom(5);
         assertEquals(5, awp.getZoom());
     }
@@ -40,61 +37,61 @@ class VanzfranhaitTest {
     @Test
     void armaCorta_noDisparaSinMunicion() {
         ArmaCorta usp = new ArmaCorta(
-            "USP-S", 35, 200, 12, 0.9f, "CT", 350, "9mm", false);
+            "USP-S", 35, 200, 12, 0.9f, Equipo.CT, 350, "9mm", false);
 
-        // Disparar 12 veces (munición completa)
         for (int i = 0; i < 12; i++) {
             assertTrue(usp.disparar() > 0, "Debería disparar con munición");
         }
 
-        // La 13ª vez: sin munición, no dispara
         assertEquals(0, usp.disparar());
         assertEquals(0, usp.getMunicionActual());
     }
 
     // ------------------------------------------------------------------
-    // Test 3: Granada no explota sin lanzar
+    // Test 3: Granada cambia su estado al lanzarse
     // ------------------------------------------------------------------
     @Test
-    void granada_noExplotaSinLanzar() {
-        Granada he = new Granada("HE", 98, 300, "Ambos", "frag", 8, 1.6f);
+    void granada_cambiaEstadoAlLanzar() {
+        Granada he = new Granada("HE", 98, 300, Equipo.AMBOS, "frag", 8, 1.6f);
 
-        // Invariante: no se puede explotar algo que no fue lanzado
-        assertThrows(IllegalStateException.class, he::explotar);
+        assertFalse(he.isLanzada());
+        he.lanzar();
+        assertTrue(he.isLanzada());
     }
 
     // ------------------------------------------------------------------
-    // Test 4: Granada solo se lanza una vez
+    // Test 4: Granada explota (la validacion de doble uso va en el Service)
     // ------------------------------------------------------------------
     @Test
-    void granada_soloSeLanzaUnaVez() {
+    void granada_explotaYDevuelveDano() {
         Granada flash = new Granada(
-            "Flashbang", 0, 200, "Ambos", "flash", 10, 1.6f);
+            "Flashbang", 10, 200, Equipo.AMBOS, "flash", 10, 1.6f);
 
-        flash.lanzar();
-        assertTrue(flash.isLanzada());
-
-        // Segundo intento: excepción
-        assertThrows(IllegalStateException.class, flash::lanzar);
+        int dano = flash.explotar();
+        assertEquals(10, dano);
     }
 
     // ------------------------------------------------------------------
-    // Test 5: ArmaCorta sin ráfaga no puede disparar rápido
+    // Test 5: Aguantar respiracion sube la estabilidad
     // ------------------------------------------------------------------
     @Test
-    void armaCorta_sinRafaga_lanzaExcepcion() {
-        ArmaCorta usp = new ArmaCorta(
-            "USP-S", 35, 200, 12, 0.9f, "CT", 350, "9mm", false);
+    void francotirador_aguantarRespiracionSubeEstabilidad() {
+        Francotirador awp = new Francotirador(
+            "AWP", 115, 4750, 10, 1.0f, Equipo.AMBOS, 100, 41, 10);
 
-        assertThrows(IllegalStateException.class, usp::dispararRapido);
+        assertEquals(0.5f, awp.getEstabilidad());
+        awp.aguantarRespiracion();
+        assertEquals(1.0f, awp.getEstabilidad());
     }
 
     // ------------------------------------------------------------------
-    // Test 6 (bonus): Granada rechaza tipo inválido en constructor
+    // Test 6: El enum Equipo acepta los valores del juego
     // ------------------------------------------------------------------
     @Test
-    void granada_rechazaTipoInvalido() {
-        assertThrows(IllegalArgumentException.class,
-            () -> new Granada("Bomba", 50, 300, "Ambos", "nuclear", 20, 2.0f));
+    void equipo_aceptaValoresValidos() {
+        Francotirador awp = new Francotirador(
+            "AWP", 115, 4750, 10, 1.0f, Equipo.CT, 100, 41, 10);
+        
+        assertEquals(Equipo.CT, awp.getEquipo());
     }
 }

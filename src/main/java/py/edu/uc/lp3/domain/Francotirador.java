@@ -45,35 +45,29 @@ public class Francotirador extends ArmaLarga {
      * @param cadencia    disparos por minuto (RPM)
      * @param zoom        nivel de aumento inicial (1 a 10)
      */
-    public Francotirador(String nombre, int daño, int precio, int municionMax,
-                         float precision, String equipo,
-                         int alcance, int cadencia, int zoom) {
+    @com.fasterxml.jackson.annotation.JsonCreator
+    public Francotirador(
+            @com.fasterxml.jackson.annotation.JsonProperty("nombre") String nombre,
+            @com.fasterxml.jackson.annotation.JsonProperty("daño") int daño,
+            @com.fasterxml.jackson.annotation.JsonProperty("precio") int precio,
+            @com.fasterxml.jackson.annotation.JsonProperty("municionMax") int municionMax,
+            @com.fasterxml.jackson.annotation.JsonProperty("precision") float precision,
+            @com.fasterxml.jackson.annotation.JsonProperty("equipo") Equipo equipo,
+            @com.fasterxml.jackson.annotation.JsonProperty("alcance") int alcance,
+            @com.fasterxml.jackson.annotation.JsonProperty("cadencia") int cadencia,
+            @com.fasterxml.jackson.annotation.JsonProperty("zoom") int zoom) {
         super(nombre, daño, precio, municionMax, precision, equipo, alcance, cadencia);
 
-        if (zoom < 1 || zoom > 10) {
-            throw new IllegalArgumentException("El zoom debe estar entre 1 y 10");
-        }
-
-        this.zoom = zoom;
-        this.estabilidad = 0.5f;   // valor inicial medio
+        this.zoom = Math.max(1, Math.min(10, zoom));
+        this.estabilidad = 0.5f;
     }
-
     /**
      * Activa el zoom de la mira.
-     * Sobrescribe el mensaje por defecto de {@link Arma}, que rechaza
-     * la operación para cualquier arma que no sea francotirador.
-     *
-     * @param nivel nivel de zoom deseado (1 a 10)
-     * @throws IllegalArgumentException si el nivel está fuera de rango
      */
     @Override
     public void usarZoom(int nivel) {
-        if (nivel < 1 || nivel > 10) {
-            throw new IllegalArgumentException("El zoom debe estar entre 1 y 10");
-        }
-        this.zoom = nivel;
+        this.zoom = Math.max(1, Math.min(10, nivel));
     }
-
     /**
      * Aguanta la respiración: sube la estabilidad al máximo por un momento.
      * (En un juego real tendría una duración; aquí lo simplificamos.)
@@ -117,12 +111,7 @@ public class Francotirador extends ArmaLarga {
     // Sobrescritura de disparar() para agregar lógica propia
     // ------------------------------------------------------------------
     @Override
-    public int disparar() {
-        // Si no está estabilizado, el disparo puede fallar
-        // (aquí simulamos: si estabilidad < 0.7, hay 50% de fallar)
-        if (estabilidad < 0.7f && Math.random() < 0.5) {
-            return 0;   // disparo perdido
-        }
+public int disparar() {
         return super.disparar();
     }
 }

@@ -38,21 +38,11 @@ public class Escopeta extends ArmaLarga {
      * @param alcanceEfectivo   alcance útil en metros (menor o igual a alcance)
      */
     public Escopeta(String nombre, int daño, int precio, int municionMax,
-                    float precision, String equipo,
+                    float precision, Equipo equipo,
                     int alcance, int cadencia,
                     int numeroBalas, float dispersionBalas, int alcanceEfectivo) {
         super(nombre, daño, precio, municionMax, precision, equipo, alcance, cadencia);
 
-        if (numeroBalas < 1 || numeroBalas > 20) {
-            throw new IllegalArgumentException("El número de balas debe estar entre 1 y 20");
-        }
-        if (dispersionBalas < 0.0f || dispersionBalas > 1.0f) {
-            throw new IllegalArgumentException("La dispersión debe estar entre 0.0 y 1.0");
-        }
-        if (alcanceEfectivo <= 0 || alcanceEfectivo > alcance) {
-            throw new IllegalArgumentException(
-                "El alcance efectivo debe ser positivo y no mayor al alcance total");
-        }
 
         this.numeroBalas = numeroBalas;
         this.dispersionBalas = dispersionBalas;

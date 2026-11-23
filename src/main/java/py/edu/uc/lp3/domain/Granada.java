@@ -55,61 +55,33 @@ public class Granada extends Arma {
             @JsonProperty("nombre") String nombre,
             @JsonProperty("daño") int daño,
             @JsonProperty("precio") int precio,
-            @JsonProperty("equipo") String equipo,
+            @JsonProperty("equipo") Equipo equipo,
             @JsonProperty("tipoGranada") String tipo,
             @JsonProperty("radioExplosion") int radioExplosion,
             @JsonProperty("tiempoActivacion") float tiempoActivacion) {
-        // Una granada tiene "municionMax = 1" porque solo se lanza una vez por compra
         super(nombre, daño, precio, 1, 1.0f, equipo);
 
-        if (tipo == null || !esTipoValido(tipo)) {
-            throw new IllegalArgumentException(
-                "Tipo de granada inválido. Válidos: flash, humo, frag, incendio, molotov");
-        }
-        if (radioExplosion <= 0) {
-            throw new IllegalArgumentException("El radio de explosión debe ser positivo");
-        }
-        if (tiempoActivacion <= 0) {
-            throw new IllegalArgumentException("El tiempo de activación debe ser positivo");
-        }
-
-        this.tipo = tipo;
-        this.radioExplosion = radioExplosion;
-        this.tiempoActivacion = tiempoActivacion;
+        this.tipo = (tipo == null) ? "frag" : tipo;
+        this.radioExplosion = Math.max(1, radioExplosion);
+        this.tiempoActivacion = Math.max(0.1f, tiempoActivacion);
         this.lanzada = false;
     }
-
     /**
-     * Lanza la granada. Solo se puede lanzar una vez.
-     * Sobrescribe el mensaje por defecto de {@link Arma}, que rechaza
-     * la operación para cualquier arma que no sea granada.
-     *
-     * @throws IllegalStateException si ya fue lanzada
+     * Lanza la granada. 
      */
-    @Override
-    public void lanzar() {
-        if (lanzada) {
-            throw new IllegalStateException("La granada ya fue lanzada");
-        }
-        lanzada = true;
-        // En un juego real, aquí empezaría el temporizador
+    
+    @Override 
+	public void lanzar() {
+        this.lanzada = true;
     }
 
     /**
-     * Simula la explosión. Solo puede explotar si ya fue lanzada.
-     * Sobrescribe el mensaje por defecto de {@link Arma}.
-     *
-     * @return el daño infligido en el centro de la explosión
-     * @throws IllegalStateException si la granada no fue lanzada
+     * Simula la explosión. 
      */
     @Override
     public int explotar() {
-        if (!lanzada) {
-            throw new IllegalStateException("No se puede explotar una granada que no fue lanzada");
-        }
         return getDaño();
     }
-
     /**
      * Indica si la granada ya fue lanzada.
      */

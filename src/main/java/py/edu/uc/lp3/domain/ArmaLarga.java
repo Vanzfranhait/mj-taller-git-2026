@@ -50,16 +50,10 @@ public abstract class ArmaLarga extends Arma {
      * @param cadencia    disparos por minuto (RPM)
      */
     protected ArmaLarga(String nombre, int daño, int precio, int municionMax,
-                        float precision, String equipo,
+                        float precision, Equipo equipo,
                         int alcance, int cadencia) {
         super(nombre, daño, precio, municionMax, precision, equipo);
 
-        if (alcance <= 0) {
-            throw new IllegalArgumentException("El alcance debe ser positivo");
-        }
-        if (cadencia <= 0) {
-            throw new IllegalArgumentException("La cadencia debe ser positiva");
-        }
 
         this.alcance = alcance;
         // Conversión: RPM -> milisegundos entre disparos
