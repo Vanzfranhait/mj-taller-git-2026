@@ -1,0 +1,149 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-23T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "env_poo09",
+      "_type": "environment",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "POO-09 — A1/A2/A3",
+      "data": {
+        "a1": "http://localhost:8080",
+        "a2": "http://localhost:8082",
+        "a3": "http://localhost:8083"
+      }
+    },
+    {
+      "_id": "fld_openapi",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "00 — OpenAPI propio"
+    },
+    {
+      "_id": "req_openapi",
+      "_type": "request",
+      "parentId": "fld_openapi",
+      "name": "GET /v3/api-docs",
+      "method": "GET",
+      "url": "{{ _.a1 }}/v3/api-docs",
+      "body": {},
+      "headers": []
+    },
+    {
+      "_id": "fld_feliz",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "01 — Escenario feliz"
+    },
+    {
+      "_id": "req_feliz",
+      "_type": "request",
+      "parentId": "fld_feliz",
+      "name": "POST /api/escenario/disparo (feliz)",
+      "method": "POST",
+      "url": "{{ _.a1 }}/api/escenario/disparo",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"modelo\": \"AK-47\",\n  \"carga\": 1,\n  \"distancia\": 10,\n  \"vida\": 100,\n  \"blindaje\": 100\n}"
+      }
+    },
+    {
+      "_id": "req_feliz_get",
+      "_type": "request",
+      "parentId": "fld_feliz",
+      "name": "GET /api/escenario/jugadas (verifica persistencia)",
+      "method": "GET",
+      "url": "{{ _.a1 }}/api/escenario/jugadas",
+      "body": {},
+      "headers": []
+    },
+    {
+      "_id": "fld_rechazo_a2",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "02 — Rechazo de A2 (munición)"
+    },
+    {
+      "_id": "req_rechazo_a2",
+      "_type": "request",
+      "parentId": "fld_rechazo_a2",
+      "name": "POST /api/escenario/disparo (carga=0 → A2 rechaza)",
+      "method": "POST",
+      "url": "{{ _.a1 }}/api/escenario/disparo",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"modelo\": \"AK-47\",\n  \"carga\": 0,\n  \"distancia\": 10,\n  \"vida\": 100,\n  \"blindaje\": 100\n}"
+      }
+    },
+    {
+      "_id": "req_rechazo_a2_get",
+      "_type": "request",
+      "parentId": "fld_rechazo_a2",
+      "name": "GET /api/escenario/jugadas (la base no crece)",
+      "method": "GET",
+      "url": "{{ _.a1 }}/api/escenario/jugadas",
+      "body": {},
+      "headers": []
+    },
+    {
+      "_id": "fld_rechazo_a3",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "03 — Rechazo de A3 (vida)"
+    },
+    {
+      "_id": "req_rechazo_a3",
+      "_type": "request",
+      "parentId": "fld_rechazo_a3",
+      "name": "POST /api/escenario/disparo (vida=0 → A3 rechaza)",
+      "method": "POST",
+      "url": "{{ _.a1 }}/api/escenario/disparo",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"modelo\": \"AK-47\",\n  \"carga\": 1,\n  \"distancia\": 10,\n  \"vida\": 0,\n  \"blindaje\": 100\n}"
+      }
+    },
+    {
+      "_id": "req_rechazo_a3_get",
+      "_type": "request",
+      "parentId": "fld_rechazo_a3",
+      "name": "GET /api/escenario/jugadas (sigue igual)",
+      "method": "GET",
+      "url": "{{ _.a1 }}/api/escenario/jugadas",
+      "body": {},
+      "headers": []
+    },
+    {
+      "_id": "fld_modo_autonomo",
+      "_type": "request_group",
+      "parentId": "__WORKSPACE_ID__",
+      "name": "04 — Modo autónomo (sin A2/A3 vivos)"
+    },
+    {
+      "_id": "req_autonomo_feliz",
+      "_type": "request",
+      "parentId": "fld_modo_autonomo",
+      "name": "POST /api/escenario/disparo (feliz con fallback)",
+      "method": "POST",
+      "url": "{{ _.a1 }}/api/escenario/disparo",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"modelo\": \"AK-47\",\n  \"carga\": 1,\n  \"distancia\": 10,\n  \"vida\": 100,\n  \"blindaje\": 100\n}"
+      }
+    }
+  ]
+}
