@@ -17,9 +17,15 @@ import java.util.Map;
 /**
  * Cliente HTTP hacia A3 (Joaquín Benegas, CS2, puerto 8083).
  *
- * Mismo contrato que A2Client: POST /api/reglas/disparo y POST /api/reglas/impacto.
- * Hasta que Joaquín publique su OpenAPI, se asume ese contrato. Si difiere,
- * se ajustan las rutas acá y en el fallback.
+ * Contrato real de Joaquín:
+ *   POST /api/reglas/municion -> {arma, municionCargador, municionReserva, modo}
+ *       200 = permitido; 409 = rechazo (MUNICION_AGOTADA); 400 = dato ilegal
+ *   POST /api/reglas/danio    -> {tirador, equipoTirador, objetivo, equipoObjetivo,
+ *                                 vidaObjetivo, blindajeObjetivo, danio}
+ *       200 = permitido; 422 = rechazo (DISPARO_NO_PERMITIDO); 400 = dato ilegal
+ *
+ * Si Joaquín no responde (timeout / conexión rechazada) o está deshabilitado por
+ * configuración, delega en el fallback local.
  */
 @Component
 public class A3Client implements ReglaClient {
@@ -55,65 +61,107 @@ public class A3Client implements ReglaClient {
         return nombre;
     }
 
+    /**
+     * Regla de munición de Joaquín. El escenario no la usa hoy (usa /danio),
+     * pero queda implementada para completar el contrato de ReglaClient.
+     */
     @Override
     public ResultadoRegla validarDisparo(DisparoRequest req) {
-        if (!habilitado) {
-            return fallback.validarDisparo(req, nombre);
-        }
-        try {
-            Map<String, Object> body = restClient.post()
-                    .uri("/api/reglas/disparo")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(req)
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
-            Object detalle = (body == null) ? "aceptado" : body.getOrDefault("detalle", "aceptado");
-            return ResultadoRegla.aceptado(String.valueOf(detalle), OrigenResultado.HTTP);
-        } catch (RestClientResponseException ex) {
-            return traducirRechazo(ex);
-        } catch (ResourceAccessException ex) {
-            log.warn("{} no responde ({}). Uso fallback local.", nombre, ex.getMessage());
-            return fallback.validarDisparo(req, nombre);
-        }
+        // Joaquín usa /api/reglas/municion con otro DTO. Este método queda para
+        // compatibilidad con la interfaz; el escenario llama a validarDanio(...).
+        // Se traduce lo mínimo: modelo + carga (1 bala).
+        MunicionRequest peticion = new MunicionRequest(
+                req.modelo(),
+                req.carga(),
+                90,
+                "SEMI");
+        return llamarMunicion(peticion);
     }
 
+    /**
+     * Regla de daño de Joaquín: es la que usa el escenario como validación de A3.
+     */
+    public ResultadoRegla validarDanio(DanioRequest req) {
+        return llamarDanio(req);
+    }
+
+    /**
+     * Regla de impacto (heredada de la interfaz): no aplica al contrato de Joaquín.
+     * Se traduce a /api/reglas/danio con valores mínimos para no romper la interfaz.
+     */
     @Override
     public ResultadoRegla validarImpacto(ImpactoRequest req) {
+        DanioRequest danio = new DanioRequest(
+                "Sombra", "TERRORISTAS",
+                "Halcón", "ANTITERRORISTAS",
+                req.vida(), req.blindaje(),
+                180);
+        return llamarDanio(danio);
+    }
+
+    // --- Llamadas HTTP ---
+
+    private ResultadoRegla llamarMunicion(MunicionRequest req) {
         if (!habilitado) {
-            return fallback.validarImpacto(req, nombre);
+            return fallback.validarMunicion(req, nombre);
         }
         try {
             Map<String, Object> body = restClient.post()
-                    .uri("/api/reglas/impacto")
+                    .uri("/api/reglas/municion")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(req)
                     .retrieve()
                     .body(new ParameterizedTypeReference<Map<String, Object>>() {});
-            Object detalle = (body == null) ? "aceptado" : body.getOrDefault("detalle", "aceptado");
-            return ResultadoRegla.aceptado(String.valueOf(detalle), OrigenResultado.HTTP);
+            return ResultadoRegla.aceptado(
+                    String.valueOf(body == null ? "aceptado" : body.getOrDefault("regla", "aceptado")),
+                    OrigenResultado.HTTP);
         } catch (RestClientResponseException ex) {
-            return traducirRechazo(ex);
+            return traducirRechazo(ex, "municion");
         } catch (ResourceAccessException ex) {
             log.warn("{} no responde ({}). Uso fallback local.", nombre, ex.getMessage());
-            return fallback.validarImpacto(req, nombre);
+            return fallback.validarMunicion(req, nombre);
         }
     }
 
-    private ResultadoRegla traducirRechazo(RestClientResponseException ex) {
-        String cuerpo = ex.getResponseBodyAsString();
-        String excepcion = extraerExcepcion(cuerpo);
-        return ResultadoRegla.rechazado(
-                nombre + " rechazó: " + cuerpo,
-                OrigenResultado.HTTP,
-                ex.getStatusCode().value(),
-                excepcion);
+    private ResultadoRegla llamarDanio(DanioRequest req) {
+        if (!habilitado) {
+            return fallback.validarDanio(req, nombre);
+        }
+        try {
+            Map<String, Object> body = restClient.post()
+                    .uri("/api/reglas/danio")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(req)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
+            return ResultadoRegla.aceptado(
+                    String.valueOf(body == null ? "aceptado" : body.getOrDefault("regla", "aceptado")),
+                    OrigenResultado.HTTP);
+        } catch (RestClientResponseException ex) {
+            return traducirRechazo(ex, "danio");
+        } catch (ResourceAccessException ex) {
+            log.warn("{} no responde ({}). Uso fallback local.", nombre, ex.getMessage());
+            return fallback.validarDanio(req, nombre);
+        }
     }
 
-    private String extraerExcepcion(String cuerpo) {
+    private ResultadoRegla traducirRechazo(RestClientResponseException ex, String tipo) {
+        String cuerpo = ex.getResponseBodyAsString();
+        String excepcion = extraerCampo(cuerpo, "excepcion");
+        String codigo = extraerCampo(cuerpo, "codigo");
+        return ResultadoRegla.rechazado(
+                nombre + " rechazó (" + tipo + "): " + cuerpo,
+                OrigenResultado.HTTP,
+                ex.getStatusCode().value(),
+                excepcion != null ? excepcion : codigo);
+    }
+
+    private String extraerCampo(String cuerpo, String campo) {
         if (cuerpo == null) return null;
-        int idx = cuerpo.indexOf("\"excepcion\"");
+        String clave = "\"" + campo + "\"";
+        int idx = cuerpo.indexOf(clave);
         if (idx < 0) return null;
-        int start = cuerpo.indexOf('"', idx + 11);
+        int start = cuerpo.indexOf('"', idx + clave.length());
         int end = cuerpo.indexOf('"', start + 1);
         if (start < 0 || end < 0) return null;
         return cuerpo.substring(start + 1, end);
