@@ -80,3 +80,27 @@ Usé la IA como **guía y asistente** para:
 - RUN.md
 - Colección de Insomnia: `insomnia/coleccion-poo-08.json`
 - Documento de entrega
+
+### 8. POO-09 — Challenge de APIs cruzadas
+
+- "¿Cómo habilito springdoc-openapi en Spring Boot 3 para publicar /v3/api-docs?"
+- "¿Qué anotaciones (@Operation, @ApiResponse) agrego para que un extraño entienda las reglas desde el documento?"
+- "¿Cómo configuro un RestClient de Spring con timeout de conexión y de lectura?"
+- "¿Cómo leo el body de un 4xx/422 del compañero sin que RestClient lance excepción?"
+- "¿Cómo atribuyo un rechazo a A2 vs A3 en el handler, sin copiar el dominio del compañero?"
+- "¿Cómo garantizo que la base no cambie si A2 o A3 rechazan?"
+- "¿Cómo implemento un fallback local cuando el servicio del compañero no responde, y cómo lo marco en la respuesta?"
+- "¿Cómo exporto una colección de Insomnia con entorno y variables (a1, a2, a3) para que se pueda importar?"
+- "¿Cómo pruebo el escenario con curl en Git Bash en Windows (comillas simples, JSON en una línea)?"
+- "¿Cómo verifico que la jugada se persistió con un GET posterior y que los rechazos no agregaron nada?"
+
+**Decisiones tomadas con IA y revisadas por mí:**
+
+- Orden de las llamadas: A2 (munición) primero, A3 (daño) después. Si A2 rechaza, no se llama a A3.
+- La persistencia (`jugadaRepository.save`) va **después** de que ambas validaciones pasaron, para que un rechazo no toque la base.
+- El fallback **solo valida** (aceptar/rechazar), no calcula la aritmética del daño. El cálculo local de `vidaDespues`/`blindajeDespues` lo hace A1 en `EscenarioService`.
+- El fallback se marca explícitamente con `origenA2`/`origenA3: FALLBACK` en la jugada persistida, para que no se confunda con HTTP real.
+
+**Qué NO hizo la IA:** el diseño del escenario ("disparo coordinado"), la elección de qué regla de cada compañero usar (disparo de A2, daño de A3), las pruebas manuales con los tres servicios arriba, y la decisión de dejar el fallback como contingencia y no como atajo.
+
+**Pendiente conocido (documentado, no bloquea la entrega):** el cálculo local de daño en `EscenarioService` no descuenta el blindaje de la vida (da `vidaDespues: 0` en lugar de `10` para `danio: 180`, `blindaje: 100`). La validación (aceptar/rechazar) sí replica la regla de A3; la aritmética es una simplificación propia. 
